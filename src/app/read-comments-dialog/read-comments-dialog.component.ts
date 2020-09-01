@@ -8,10 +8,13 @@ import { MAT_DIALOG_DATA } from '@angular/material';
     styleUrls: ['./read-comments-dialog.component.css']
 })
 export class ReadCommentsDialogComponent implements OnInit {
-    constructor(@Inject(MAT_DIALOG_DATA) private injectedData: any) { }
+    constructor(
+        @Inject(MAT_DIALOG_DATA) private injectedData: any
+    ) { }
 
     arrayOfComments: any[];
-    
+    commentURL: string;
+
     ngOnInit(): void {
 
         this.arrayOfComments = this.injectedData.comments.data;
@@ -19,6 +22,8 @@ export class ReadCommentsDialogComponent implements OnInit {
         this.arrayOfComments.forEach(comment => {
             console.log(comment.data.body)
         });
+
+        this.commentURL = this.injectedData.commentURL;
     }
 
 

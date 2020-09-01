@@ -58,9 +58,10 @@ export class TableBasicExample implements OnInit {
 
     this._dialog.open(ReadCommentsDialogComponent, {
       height: '80%',
-      width: '40%',
+      width: '80%',
       data: {
-        comments : this.commentDataSource
+        comments : this.commentDataSource,
+        commentURL: this.subredditBaseURL + this._currentSubreddit + `/comments/${id}.json`
       }
     });
   }

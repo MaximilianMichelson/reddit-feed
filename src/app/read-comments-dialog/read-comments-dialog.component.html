@@ -1,6 +1,7 @@
 <div class="temp">
-    <li *ngFor="let comment of arrayOfComments;">
-        {{comment.data.body}}
-    </li>
+<p>{{commentURL}}</p>
+    <mat-list *ngFor="let comment of arrayOfComments;">
+        <mat-list-item> Author: {{comment.data.author}} <br> {{comment.data.body}} {{comment.data.score}} </mat-list-item>
+    </mat-list>
 
 </div>

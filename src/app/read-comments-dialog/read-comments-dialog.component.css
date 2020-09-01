@@ -1,0 +1,9 @@
+.mat-list-item:nth-child(odd){
+    background-color: rgb(207, 203, 203);
+    overflow: auto;
+
+}
+.mat-list-item:nth-child(even){
+    background-color:rgb(230, 228, 228);
+    overflow: auto;
+  }
