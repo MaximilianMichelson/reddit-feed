@@ -1,4 +1,6 @@
 <div class="temp">
-    <p>{{data.permalink}}</p>
+    <li *ngFor="let comment of arrayOfComments;">
+        {{comment.data.body}}
+    </li>
 
 </div>

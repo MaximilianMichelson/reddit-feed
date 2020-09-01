@@ -24,9 +24,10 @@ export class TableBasicExample implements OnInit {
 
   public displayedColumns: string[];
   public dataSource: MatTableDataSource<any>;
+  public commentDataSource: MatTableDataSource<any>;
   public subredditFormGroup: FormGroup;
   private _currentSubreddit: string;
-  private _currentSubredditComments: string;
+
   subredditBaseURL: string = 'https://www.reddit.com/r/';
 
 
@@ -41,15 +42,25 @@ export class TableBasicExample implements OnInit {
     });
   }
 
-  readComments(data: any): void {
-    console.log('comments url  ' + this.subredditBaseURL + this._currentSubreddit + `/comments/${data.id}.json`);
+  readComments(id: string): void {
+    console.log('comments url  ' + this.subredditBaseURL + this._currentSubreddit + `/comments/${id}.json`);
 
   
+    this._httpService.getRequest(this.subredditBaseURL + this._currentSubreddit + `/comments/${id}.json`)
+    .subscribe(comments => {
+
+      this.commentDataSource.data = comments[1].data.children; //data.body
+
+
+    });
+    
+  console.log('Comments Refreshed')
+
     this._dialog.open(ReadCommentsDialogComponent, {
       height: '80%',
       width: '40%',
       data: {
-
+        comments : this.commentDataSource
       }
     });
   }
@@ -68,6 +79,8 @@ export class TableBasicExample implements OnInit {
 
     this.displayedColumns = ['thumbnail', 'created', 'num_comments', 'author', 'score', 'permalink', 'title', 'comments'];
     this.dataSource = new MatTableDataSource();
+    this.commentDataSource = new MatTableDataSource();
+
 
 
     this.subredditFormGroup = new FormGroup({
@@ -75,7 +88,6 @@ export class TableBasicExample implements OnInit {
     })
 
     this._currentSubreddit = 'sweden';
-    this._currentSubredditComments = 'sweden';
 
     this.getFeed();
   }
