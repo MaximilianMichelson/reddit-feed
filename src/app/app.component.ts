@@ -1,10 +1,11 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { MatPaginatorIntl, MatSort, MatTableDataSource, MatTable, MatPaginator, MatSelectChange } from '@angular/material';
+import { MatTableDataSource, MatPaginator } from '@angular/material';
 import { HttpService } from './http-service/http-service'
-import { BehaviorSubject, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { SelectedRowDialogComponent } from './selected-row-dialog.component';
+import { MatDialog } from '@angular/material/dialog';
+import { SelectedRowDialogComponent } from './selected-row-dialog/selected-row-dialog.component';
+import { FormGroup, FormControl } from '@angular/forms';
+import { ReadCommentsDialogComponent } from './read-comments-dialog/read-comments-dialog.component';
 
 @Component({
   selector: 'app-root',
@@ -13,32 +14,75 @@ import { SelectedRowDialogComponent } from './selected-row-dialog.component';
 })
 export class TableBasicExample implements OnInit {
 
-
-  /**
-   *
-   */
-  constructor(private _httpService: HttpService, public dialog: MatDialog) { }
+  constructor(
+    private _httpService: HttpService,
+    private _dialog: MatDialog
+  ) { }
 
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
-  displayedColumns: string[];
-  dataSource: MatTableDataSource<any>;
+  public displayedColumns: string[];
+  public dataSource: MatTableDataSource<any>;
+  public subredditFormGroup: FormGroup;
+  private _currentSubreddit: string;
+  private _currentSubredditComments: string;
+  subredditBaseURL: string = 'https://www.reddit.com/r/';
 
-  readSelfText(text: string) {
-    const dialogRef = this.dialog.open(SelectedRowDialogComponent, {
-      width: '250px',
-      data: { text }
+
+  readSelfText(selftext: string, title: string): void {
+    this._dialog.open(SelectedRowDialogComponent, {
+      height: '80%',
+      width: '40%',
+      data: {
+        text: selftext,
+        title
+      }
     });
+  }
+
+  readComments(data: any): void {
+    console.log('comments url  ' + this.subredditBaseURL + this._currentSubreddit + `/comments/${data.id}.json`);
+
+  
+    this._dialog.open(ReadCommentsDialogComponent, {
+      height: '80%',
+      width: '40%',
+      data: {
+
+      }
+    });
+  }
+
+  onSubredditChange(newSubreddit: string): void {
+    this._currentSubreddit = newSubreddit.toLowerCase();
+    this.getFeed();
+  }
+
+  onPageSizeChanged(size: number) {
+    console.log(`New Feed Size ${size}`);
+    this.getFeed();
   }
 
   ngOnInit(): void {
 
-    this.displayedColumns = ['thumbnail', 'created', 'num_comments', 'author', 'score', 'permalink', 'title'];
+    this.displayedColumns = ['thumbnail', 'created', 'num_comments', 'author', 'score', 'permalink', 'title', 'comments'];
     this.dataSource = new MatTableDataSource();
 
 
-    this._httpService.getRequest('https://www.reddit.com/r/sweden.json?limit=25')
+    this.subredditFormGroup = new FormGroup({
+      subreddit: new FormControl('')
+    })
+
+    this._currentSubreddit = 'sweden';
+    this._currentSubredditComments = 'sweden';
+
+    this.getFeed();
+  }
+
+
+  getFeed(): void {
+    this._httpService.getRequest(this.subredditBaseURL + `${this._currentSubreddit}.json?limit=25`)
       .pipe(
         map(
           (allThings) => {
@@ -52,11 +96,6 @@ export class TableBasicExample implements OnInit {
       )
       .subscribe(things => {
 
-        console.log(things.data.children)
-        console.log(things.data.children[0].data.author)
-        console.log(things.data.children[0].data.created)
-
-
         this.dataSource.data = things.data.children;
         this.dataSource.paginator = this.paginator;
 
@@ -68,10 +107,6 @@ export class TableBasicExample implements OnInit {
 
 
       });
+    console.log('Feed Refreshed')
   }
 }
-
-
-/**  Copyright 2020 Google LLC. All Rights Reserved.
-    Use of this source code is governed by an MIT-style license that
-    can be found in the LICENSE file at http://angular.io/license */

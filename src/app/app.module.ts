@@ -3,11 +3,12 @@ import { NgModule } from '@angular/core';
 
 import { TableBasicExample } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { MatTable, MatTableDataSource, MatSort, MatPaginator, MatTableModule, MatPaginatorModule, MatSortModule, MatNativeDateModule, MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material';
+import { MatNativeDateModule, MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { DemoMaterialModule } from './material-module';
-import { SelectedRowDialogComponent } from './selected-row-dialog.component';
+import { SelectedRowDialogComponent } from './selected-row-dialog/selected-row-dialog.component';
+import { ReadCommentsDialogComponent } from './read-comments-dialog/read-comments-dialog.component';
 
 @NgModule({
   imports: [
@@ -19,8 +20,8 @@ import { SelectedRowDialogComponent } from './selected-row-dialog.component';
     MatNativeDateModule,
     ReactiveFormsModule
   ],
-  entryComponents: [TableBasicExample,SelectedRowDialogComponent],
-  declarations: [TableBasicExample, SelectedRowDialogComponent],
+  entryComponents: [TableBasicExample, SelectedRowDialogComponent, ReadCommentsDialogComponent],
+  declarations: [TableBasicExample, SelectedRowDialogComponent, ReadCommentsDialogComponent],
   bootstrap: [TableBasicExample],
   providers: [
     { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { appearance: 'fill' } },

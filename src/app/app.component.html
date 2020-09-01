@@ -1,3 +1,12 @@
+<form [formGroup]="subredditFormGroup">
+  <mat-form-field>
+    <mat-label>Subreddit</mat-label>
+    <input matInput #newSubreddit placeholder="Sweden" value="Sweden">
+  </mat-form-field>
+
+</form>
+<button mat-raised-button (click)="onSubredditChange(newSubreddit.value)" [disabled]="!subredditFormGroup.valid">Change Subreddit</button>
+
 <mat-table [dataSource]="dataSource">
 
   <!--- Note that these columns can be defined in any order.
@@ -33,21 +42,28 @@
   </ng-container>
 
   <ng-container matColumnDef="permalink">
-    <th mat-header-cell *matHeaderCellDef> permalink </th>
+    <th mat-header-cell *matHeaderCellDef> Permalink </th>
     <td mat-cell *matCellDef="let element"> <a href={{element.data.permalink}}>{{element.data.permalink}}</a> </td>
   </ng-container>
 
   <ng-container matColumnDef="title">
-    <th mat-header-cell *matHeaderCellDef> title </th>
+    <th mat-header-cell *matHeaderCellDef> Title </th>
     <td mat-cell *matCellDef="let element"> {{element.data.title}} </td>
   </ng-container>
 
-  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-  <tr mat-row *matRowDef="let row; columns: displayedColumns;" (click)="readSelfText(row.data.selftext)"> </tr>
+  <ng-container matColumnDef="comments">
+    <th mat-header-cell *matHeaderCellDef> Comments </th>
+    <td mat-cell *matCellDef="let element"> <button mat-raised-button (click)="readComments(element.data)">Comments</button> </td>
+  </ng-container>
+
+  <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+  <tr mat-row *matRowDef="let row; columns: displayedColumns;" (click)="readSelfText((row.data.selftext),(row.data.title))"> </tr>
+  <tr mat-footer-row *matFooterRowDef="columnsToDisplay; sticky: true"></tr>
+
 </mat-table>
-<mat-paginator [pageSizeOptions]="[10, 25, 100]"></mat-paginator>
+<mat-paginator #size [pageSize]="10" [pageSizeOptions]="[5, 10, 25]" (page)="onPageSizeChanged(size.pageSize)"></mat-paginator>
 
 
 <!-- Copyright 2020 Google LLC. All Rights Reserved.
-    Use of this source code is governed by an MIT-style license that
+    Use of this source code is governed by an MIT-style license thats
     can be found in the LICENSE file at http://angular.io/license -->
