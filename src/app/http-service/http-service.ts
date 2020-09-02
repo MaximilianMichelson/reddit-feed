@@ -10,7 +10,7 @@ export class HttpService {
 
   constructor(private _http: HttpClient) { }
 
-  public getRequest(url: string): Observable<any> {
+  public getRequest(url: string): Observable<unknown> {
     return this._http.get(url).pipe(
       catchError(async (e) => this.handleError(e))
     );

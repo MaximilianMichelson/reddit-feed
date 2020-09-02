@@ -8,7 +8,14 @@ import { MAT_DIALOG_DATA } from '@angular/material';
     styleUrls: ['./selected-row-dialog.component.css']
 })
 export class SelectedRowDialogComponent {
-    constructor(@Inject(MAT_DIALOG_DATA) private data: any) {
-        console.log(data)
-     }
+    constructor(
+        @Inject(MAT_DIALOG_DATA) private _data: {
+            text: string;
+            title: string;
+        }
+    ) { }
+
+    get data() {
+        return this._data;
+    }
 }

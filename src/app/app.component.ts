@@ -45,22 +45,23 @@ export class TableBasicExample implements OnInit {
   readComments(id: string): void {
     console.log('comments url  ' + this.subredditBaseURL + this._currentSubreddit + `/comments/${id}.json`);
 
-  
+
     this._httpService.getRequest(this.subredditBaseURL + this._currentSubreddit + `/comments/${id}.json`)
-    .subscribe(comments => {
+      .subscribe((comments: Comment[]) => {
 
-      this.commentDataSource.data = comments[1].data.children; //data.body
+        // Comments[0] is the post; Comments[1] is the real comments.
+        this.commentDataSource.data = comments[1].data.children;
 
 
-    });
-    
-  console.log('Comments Refreshed')
+      });
+
+    console.log('Comments Refreshed')
 
     this._dialog.open(ReadCommentsDialogComponent, {
       height: '80%',
       width: '80%',
       data: {
-        comments : this.commentDataSource,
+        comments: this.commentDataSource,
         commentURL: this.subredditBaseURL + this._currentSubreddit + `/comments/${id}.json`
       }
     });
@@ -71,7 +72,7 @@ export class TableBasicExample implements OnInit {
     this.getFeed();
   }
 
-  onPageSizeChanged(size: number) {
+  onPageSizeChanged(size: number): void {
     console.log(`New Feed Size ${size}`);
     this.getFeed();
   }
@@ -81,8 +82,6 @@ export class TableBasicExample implements OnInit {
     this.displayedColumns = ['thumbnail', 'created', 'num_comments', 'author', 'score', 'permalink', 'title', 'comments'];
     this.dataSource = new MatTableDataSource();
     this.commentDataSource = new MatTableDataSource();
-
-
 
     this.subredditFormGroup = new FormGroup({
       subreddit: new FormControl('')
@@ -94,32 +93,45 @@ export class TableBasicExample implements OnInit {
   }
 
 
+
   getFeed(): void {
     this._httpService.getRequest(this.subredditBaseURL + `${this._currentSubreddit}.json?limit=25`)
       .pipe(
         map(
-          (allThings) => {
-            allThings.data.children.forEach(element => {
+          (feedItems: FeedItems) => {
+            feedItems.data.children.forEach(element => {
               element.data.created = new Date(element.data.created * 1000)
               element.data.permalink = `https://reddit.com/${element.data.permalink}`
             });
-            return allThings;
+            return feedItems;
           }
         )
       )
-      .subscribe(things => {
+      .subscribe(feedItems => {
+        this.dataSource.data = feedItems.data.children;
 
-        this.dataSource.data = things.data.children;
         this.dataSource.paginator = this.paginator;
-
-
         this.dataSource.paginator._intl.itemsPerPageLabel = 'limit';
         this.dataSource.paginator._intl.nextPageLabel = 'Next';
         this.dataSource.paginator._intl.previousPageLabel = 'Previous';
-
-
-
       });
     console.log('Feed Refreshed')
   }
+}
+
+interface FeedItems {
+  data: {
+    children: any[];
+    created: Date;
+    permalink: string;
+  }
+}
+
+
+interface Comment {
+  data: {
+    children: {
+      data: {replies:{data:any[]}}[];
+    }[];
+  };
 }
