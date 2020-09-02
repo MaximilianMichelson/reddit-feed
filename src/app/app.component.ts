@@ -128,7 +128,7 @@ interface FeedItems {
 }
 
 
-interface Comment {
+export interface Comment {
   data: {
     children: {
       data: {replies:{data:any[]}}[];
