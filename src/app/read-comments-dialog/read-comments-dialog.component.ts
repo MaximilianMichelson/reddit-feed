@@ -16,35 +16,57 @@ export class ReadCommentsDialogComponent implements OnInit {
     ) { }
 
     private _struct: any;
-    public something: any = [];
-    public se: Set<any>;
+    public something: Item[] = [];
+    public se: Set<Item>;
     private _commentURL: string;
-
+    newArr = []
     ngOnInit(): void {
         this._struct = {
             comments: this.injectedData.comments.data
         };
 
         for (const comment of this._struct.comments) {
-            this.something.push(this.printReply('', comment));
+            this.something.push(
+                {
+                    author: this.getAuthor('', comment),
+                    text: this.printReply('', comment)
+                }
+            );
             this.findReplies('', comment);
         }
 
         this.se = new Set(this.something)
 
+        this.something.forEach((item, index) => {
+            if (this.newArr.findIndex(i => i.author == item.author) === -1) {
+                this.newArr.push(item)
+            }
+
+        });
+        this.something = this.newArr
     }
 
 
     findReplies(depth: string, comment) {
         if (!this.hasReplies(comment)) {
             this.printReply(depth, comment);
-            this.something.push(this.printReply(depth, comment));
+            this.something.push(
+                {
+                    author: this.getAuthor(depth, comment),
+                    text: this.printReply(depth, comment)
+                }
+            );
         }
         else {
             for (const reply of this.getReplies(comment)) {
                 this.printReply(depth + '-', reply);
-                this.something.push(this.printReply(depth + '-', reply));
-                this.findReplies(depth + '-', reply);
+                this.something.push(
+                    {
+                        author: this.getAuthor(depth + '---', reply),
+                        text: this.printReply(depth + '---', reply)
+                    }
+                );
+                this.findReplies(depth + '---', reply);
             }
         }
     }
@@ -63,6 +85,10 @@ export class ReadCommentsDialogComponent implements OnInit {
         return depth + reply.data.body;
     }
 
+    getAuthor(depth, reply): string {
+        return depth + reply.data.author;
+    }
+
     get commentURL() {
         return this._commentURL;
     }
@@ -75,5 +101,10 @@ export class ReadCommentsDialogComponent implements OnInit {
         console.log(this.something)
     }
 
+}
 
+
+interface Item {
+    author: string;
+    text: string;
 }
