@@ -1,19 +1,16 @@
 <div class="temp">
     <p>{{commentURL}}</p>
 
-    <mat-list *ngFor="let comment of se;">
-        <mat-list-item style="background-color: aqua; margin-left: -100px;">
-            <p matLine>
+    <div>
+
+        <mat-list >
+            <mat-list-item *ngFor="let comment of se;">
                 {{comment}}
+            </mat-list-item>
 
-            </p>
+        </mat-list>
 
-            
-
-        </mat-list-item>
-
-    </mat-list>
-
+    </div>
 
     <!-- <mat-list *ngFor="let comment of comments;">
         <mat-list-item style="background-color: aqua; margin-left: -100px;">
