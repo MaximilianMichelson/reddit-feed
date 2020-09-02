@@ -10,7 +10,10 @@ import { MAT_DIALOG_DATA } from '@angular/material';
 export class SelectedRowDialogComponent {
     constructor(
         @Inject(MAT_DIALOG_DATA) private _data: {
-            text: string;
+            created: Date;
+            comments: number;
+            author: string;
+            selftext: string;
             title: string;
         }
     ) { }

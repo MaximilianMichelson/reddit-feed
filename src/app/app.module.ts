@@ -9,6 +9,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { DemoMaterialModule } from './material-module';
 import { SelectedRowDialogComponent } from './selected-row-dialog/selected-row-dialog.component';
 import { ReadCommentsDialogComponent } from './read-comments-dialog/read-comments-dialog.component';
+import { ReadCommentsDialogComponentNonThreaded } from './read-comments-dialog-non-threaded/read-comments-dialog-non-threaded.component';
 
 @NgModule({
   imports: [
@@ -20,8 +21,8 @@ import { ReadCommentsDialogComponent } from './read-comments-dialog/read-comment
     MatNativeDateModule,
     ReactiveFormsModule
   ],
-  entryComponents: [TableBasicExample, SelectedRowDialogComponent, ReadCommentsDialogComponent],
-  declarations: [TableBasicExample, SelectedRowDialogComponent, ReadCommentsDialogComponent],
+  entryComponents: [TableBasicExample, SelectedRowDialogComponent, ReadCommentsDialogComponent, ReadCommentsDialogComponentNonThreaded],
+  declarations: [TableBasicExample, SelectedRowDialogComponent, ReadCommentsDialogComponent, ReadCommentsDialogComponentNonThreaded],
   bootstrap: [TableBasicExample],
   providers: [
     { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { appearance: 'fill' } },

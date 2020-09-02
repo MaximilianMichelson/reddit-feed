@@ -1,0 +1,15 @@
+.background {
+    background-color: #AD1457;
+    padding: 20px;
+}
+
+.title {
+    color: white;
+    background-color: #FF5252;
+}
+
+.text {
+    color: white;
+    background-color: #C2185B;
+    overflow-wrap: break-word;
+}

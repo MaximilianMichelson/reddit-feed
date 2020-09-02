@@ -1,22 +1,30 @@
 <div class="temp">
     <p>{{commentURL}}</p>
-    <mat-list  *ngFor="let comment of comments;">
-        <mat-list-item style="background-color: aqua; margin-left: -50px;">
+    <mat-list *ngFor="let comment of comments;">
+        <mat-list-item style="background-color: aqua; margin-left: -100px;">
             <p matLine>
                 Author: {{comment.data.author}} {{comment.data.body}} {{comment.data.score}}
             </p>
+            
         </mat-list-item>
+
+
+
 
         <mat-list-item *ngFor="let reply of replies;">
             <p matLine>
-                {{reply}}   
+                {{reply}}
             </p>
 
-            <mat-list-item *ngFor="let replyReply of repliesReplies;">
-                <p matLine>
-                    {{replyReply}}   
-                </p>
-            </mat-list-item>
+            <div *ngIf="reply.reply">
+                <mat-list-item *ngFor="let replyreply of reply.reply;">
+                    <p style="margin-left: 200px;" matLine>
+                        {{replyreply}}
+                    </p>
+                </mat-list-item>
+            </div>
+     
+
         </mat-list-item>
 
     </mat-list>
