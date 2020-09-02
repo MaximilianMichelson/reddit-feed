@@ -17,7 +17,7 @@ export class ReadCommentsDialogComponent implements OnInit {
 
     private _struct: any;
     public something: any = [];
-    public se:Set<any>;
+    public se: Set<any>;
     private _commentURL: string;
 
     ngOnInit(): void {
@@ -43,7 +43,7 @@ export class ReadCommentsDialogComponent implements OnInit {
         else {
             for (const reply of this.getReplies(comment)) {
                 this.printReply(depth + '-', reply);
-               // this.something.push(depth + '-', reply);
+                this.something.push(this.printReply(depth + '-', reply));
                 this.findReplies(depth + '-', reply);
             }
         }
@@ -71,7 +71,7 @@ export class ReadCommentsDialogComponent implements OnInit {
         return this._struct;
     }
 
-    commentLog(){
+    commentLog() {
         console.log(this.something)
     }
 
