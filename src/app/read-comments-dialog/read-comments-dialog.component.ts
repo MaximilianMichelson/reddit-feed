@@ -15,81 +15,22 @@ export class ReadCommentsDialogComponent implements OnInit {
         }
     ) { }
 
-    private _struct: JSONSTRUCTURE;
-    private _arrayOfReplies: any[];
-
-
+    private _struct: any;
+    public something: any = [];
+    public se:Set<any>;
     private _commentURL: string;
-
-    // ngOnInit(): void {
-    //     this._arrayOfComments = this.injectedData.comments.data;
-    //     this._arrayOfReplies = [];
-
-
-
-    //     for (const comment of this._arrayOfComments) {
-
-    //         if (comment.data.replies) {
-    //             let children = comment.data.replies.data.children;
-    //             for (const child of children) {
-
-    //                 if (child.data.replies) {
-    //                     for (const iterator of child.data.replies.data.children) {
-    //                         iterator.reply = child.data.body
-    //                         this._arrayOfReplies.push(iterator.reply)
-    //                         // comment.replies = [iterator.data.body];
-    //                     }
-    //                 }
-    //                 else this._arrayOfReplies.push(child.data.body)
-    //             }
-    //         }
-
-    //     }
-
-    //     this._commentURL = this.injectedData.commentURL;
-    // }
 
     ngOnInit(): void {
         this._struct = {
             comments: this.injectedData.comments.data
         };
-        console.log("STRUCT " + this._struct.comments)
-
 
         for (const comment of this._struct.comments) {
-            this.printReply('',comment);
+            this.something.push(this.printReply('', comment));
             this.findReplies('', comment);
         }
 
-        //     if (this.hasReplies(comment)) {
-        //         // 1st nestled reply
-        //         for (const reply of this.getReplies(comment)) {
-        //             this.printReply('---', reply);
-
-        //             // 2nd nestled reply
-        //             if (this.hasReplies(reply)) {
-        //                 for (const rep of this.getReplies(reply)) {
-        //                     this.printReply('------', rep);
-
-        //                     // 3rd nestled reply
-        //                     if (this.hasReplies(rep)) {
-        //                         for (const reps of this.getReplies(rep)) {
-        //                             this.printReply('----------', reps);
-        //                         }
-        //                     }
-        //                 }
-        //             }
-
-
-        //         }
-        //     }
-
-
-
-
-
-
-
+        this.se = new Set(this.something)
 
     }
 
@@ -97,10 +38,12 @@ export class ReadCommentsDialogComponent implements OnInit {
     findReplies(depth: string, comment) {
         if (!this.hasReplies(comment)) {
             this.printReply(depth, comment);
+            this.something.push(this.printReply(depth, comment));
         }
         else {
             for (const reply of this.getReplies(comment)) {
                 this.printReply(depth + '-', reply);
+               // this.something.push(depth + '-', reply);
                 this.findReplies(depth + '-', reply);
             }
         }
@@ -115,8 +58,9 @@ export class ReadCommentsDialogComponent implements OnInit {
         return comment.data.replies.data.children;
     }
 
-    printReply(depth, reply) {
+    printReply(depth, reply): string {
         console.log(depth + reply.data.body);
+        return depth + reply.data.body;
     }
 
     get commentURL() {
@@ -127,13 +71,9 @@ export class ReadCommentsDialogComponent implements OnInit {
         return this._struct;
     }
 
-    get replies() {
-        return this._arrayOfReplies;
+    commentLog(){
+        console.log(this.something)
     }
 
 
-
-}
-interface JSONSTRUCTURE {
-    comments: any[]
 }
