@@ -57,35 +57,36 @@ export class ReadCommentsDialogComponent implements OnInit {
 
 
         for (const comment of this._struct.comments) {
-                 this.printReply('', comment);
-
-            //     if (this.hasReplies(comment)) {
-            //         // 1st nestled reply
-            //         for (const reply of this.getReplies(comment)) {
-            //             this.printReply('---', reply);
-
-            //             // 2nd nestled reply
-            //             if (this.hasReplies(reply)) {
-            //                 for (const rep of this.getReplies(reply)) {
-            //                     this.printReply('------', rep);
-
-            //                     // 3rd nestled reply
-            //                     if (this.hasReplies(rep)) {
-            //                         for (const reps of this.getReplies(rep)) {
-            //                             this.printReply('----------', reps);
-            //                         }
-            //                     }
-            //                 }
-            //             }
-
-
-            //         }
-            //     }
-
-
+            this.printReply('',comment);
             this.findReplies('', comment);
-
         }
+
+        //     if (this.hasReplies(comment)) {
+        //         // 1st nestled reply
+        //         for (const reply of this.getReplies(comment)) {
+        //             this.printReply('---', reply);
+
+        //             // 2nd nestled reply
+        //             if (this.hasReplies(reply)) {
+        //                 for (const rep of this.getReplies(reply)) {
+        //                     this.printReply('------', rep);
+
+        //                     // 3rd nestled reply
+        //                     if (this.hasReplies(rep)) {
+        //                         for (const reps of this.getReplies(rep)) {
+        //                             this.printReply('----------', reps);
+        //                         }
+        //                     }
+        //                 }
+        //             }
+
+
+        //         }
+        //     }
+
+
+
+
 
 
 
@@ -94,10 +95,13 @@ export class ReadCommentsDialogComponent implements OnInit {
 
 
     findReplies(depth: string, comment) {
-        if (!this.hasReplies(comment)) this.printReply(depth, comment);
+        if (!this.hasReplies(comment)) {
+            this.printReply(depth, comment);
+        }
         else {
             for (const reply of this.getReplies(comment)) {
-                this.findReplies(depth + '---', reply);
+                this.printReply(depth + '-', reply);
+                this.findReplies(depth + '-', reply);
             }
         }
     }
