@@ -5,9 +5,8 @@ import { map } from 'rxjs/operators';
 import { MatDialog } from '@angular/material/dialog';
 import { SelectedRowDialogComponent } from './selected-row-dialog/selected-row-dialog.component';
 import { FormGroup, FormControl } from '@angular/forms';
-import { ReadCommentsDialogComponent } from './read-comments-dialog/read-comments-dialog.component';
-import { ReadCommentsService } from './read-comments.service';
-import { GlobalService } from './global.service';
+import { ReadCommentsService } from './services/read-comments.service';
+import { GlobalService } from './services/global.service';
 
 @Component({
   selector: 'app-root',
@@ -27,12 +26,11 @@ export class TableBasicExample implements OnInit {
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
-  public displayedColumns: string[];
-  public dataSource: MatTableDataSource<FeedItems>;
-  public commentDataSource: MatTableDataSource<any>;
-  public subredditFormGroup: FormGroup;
+  private _displayedColumns: string[];
+  private _dataSource: MatTableDataSource<redditItem>;
+  private _subredditFormGroup: FormGroup;
 
-  readSelfText(row: { selftext: string; created: Date; num_comments: number; title: string; author: string; score: number; permalink: string; url: string, id: string }): void {
+  onRowSelected(row: tableRow): void {
     this._dialog.open(SelectedRowDialogComponent, {
       data: {
         created: row.created,
@@ -48,24 +46,8 @@ export class TableBasicExample implements OnInit {
     });
   }
 
-  // readComments(id: string): void {
-  //   this._httpService.getRequest(this.subredditBaseURL + this._currentSubreddit + `/comments/${id}.json`)
-  //     .subscribe((comments: Comment[]) => {
-  //       // Comments[0] is the post; Comments[1] is the real comments.
-  //       this.commentDataSource.data = comments[1].data.children;
-  //       this._dialog.open(ReadCommentsDialogComponent, {
-  //         height: '80%',
-  //         width: '80%',
-  //         data: {
-  //           comments: this.commentDataSource,
-  //           commentURL: this.subredditBaseURL + this._currentSubreddit + `/comments/${id}.json`
-  //         }
-  //       });
-  //     });
-  // }
-
-  onReadComments(id) {
-    this._readCommentsService.readComments(id)
+  onReadComments(id: string): void {
+    this._readCommentsService.readComments(id);
   }
 
   onSubredditChange(newSubreddit: string): void {
@@ -73,43 +55,19 @@ export class TableBasicExample implements OnInit {
     this.getFeed();
   }
 
-  onPageSizeChanged(size: number, page): void {
-
-
-    // NEXT
-    if (page.pageIndex > page.previousPageIndex) {
-
-
-
-    }
-
-    // PREVIOUS
-    else if (page.pageIndex < page.previousPageIndex) {
-
-    }
-
-
-
-  }
-
   ngOnInit(): void {
-
-    this.displayedColumns = ['index', 'thumbnail', 'created', 'num_comments', 'author', 'score', 'permalink', 'title', 'comments'];
-    this.dataSource = new MatTableDataSource();
-    this.commentDataSource = new MatTableDataSource();
-
-    this.subredditFormGroup = new FormGroup({
-      subreddit: new FormControl('')
+    this._subredditFormGroup = new FormGroup({
+      subreddit: new FormControl('sweden')
     })
 
-    this._globals.currentSubreddit = 'sweden';
+    this._displayedColumns = ['index', 'thumbnail', 'created', 'num_comments', 'author', 'score', 'permalink', 'title', 'comments'];
+    this._dataSource = new MatTableDataSource();
 
-
-
-    this.dataSource.paginator = this.paginator;
-    this.dataSource.paginator._intl.itemsPerPageLabel = 'limit';
-    this.dataSource.paginator._intl.nextPageLabel = 'Next';
-    this.dataSource.paginator._intl.previousPageLabel = 'Previous';
+    this._globals.currentSubreddit = this.subredditFormGroup.controls['subreddit'].value;
+    this._dataSource.paginator = this.paginator;
+    this._dataSource.paginator._intl.itemsPerPageLabel = 'limit';
+    this._dataSource.paginator._intl.nextPageLabel = 'Next';
+    this._dataSource.paginator._intl.previousPageLabel = 'Previous';
 
     this.getFeed();
   }
@@ -117,39 +75,60 @@ export class TableBasicExample implements OnInit {
 
 
   getFeed(): void {
-
-
     this._httpService.getRequest(this._globals.subredditBaseURL + `${this._globals.currentSubreddit}.json?limit=1000`)
       .pipe(
         map(
-          (feedItems: FeedItems): FeedItems => {
-            feedItems.data.children.forEach(element => {
-              element.data.created = new Date(element.data.created * 1000).toLocaleDateString("sv-SV");
-              element.data.permalink = `https://reddit.com/${element.data.permalink}`
+          (listing: redditListing): redditItem[] => {
+            listing.data.children.forEach(element => {
+              element.data.created = new Date(Number(element.data.created) * 1000).toLocaleDateString('sv-SV');
+              element.data.permalink = `https://reddit.com/${element.data.permalink}`;
             });
-            return feedItems;
+            return listing.data.children;
           }
         )
       )
-      .subscribe((feedItems: any) => {
+      .subscribe(redditItems => this._dataSource.data = redditItems);
+  }
 
+  get subredditFormGroup(): FormGroup {
+    return this._subredditFormGroup;
+  }
 
-        this.dataSource.data = feedItems.data.children;
-        console.log('Feed Refreshed');
+  get dataSource(): MatTableDataSource<redditItem> {
+    return this._dataSource;
+  }
 
-      });
+  get displayedColumns(): string[] {
+    return this._displayedColumns;
   }
 }
 
-interface FeedItems {
+interface redditListing {
   data: {
-    children: any[];
-    created: Date;
-    permalink: string;
-  }
+    children: redditItem[];
+  };
 }
 
+interface redditItem {
+  data: {
+    created: string;
+    permalink: string;
+  };
+}
 
+interface tableRow {
+  selftext: string;
+  created: Date;
+  num_comments: number;
+  title: string;
+  author: string;
+  score: number;
+  permalink: string;
+  url: string;
+  id: string;
+}
+
+//TODO FIX
 export interface Comment {
   data: {
     children: {

@@ -1,6 +1,6 @@
 import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material';
-import { ReadCommentsService } from '../read-comments.service';
+import { ReadCommentsService } from '../services/read-comments.service';
 
 
 @Component({

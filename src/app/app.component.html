@@ -3,7 +3,7 @@
   <form [formGroup]="subredditFormGroup">
     <mat-form-field>
       <mat-label>Subreddit</mat-label>
-      <input matInput #newSubreddit placeholder="Sweden" value="Sweden">
+      <input matInput #newSubreddit value="{{ subredditFormGroup.controls['subreddit'].value }}">
     </mat-form-field>
     
   </form>
@@ -58,7 +58,7 @@
   </ng-container>
 
   <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: false"></tr>
-  <tr mat-row *matRowDef="let row; columns: displayedColumns; let i = index;" (click)="readSelfText(row.data)"> </tr>
+  <tr mat-row *matRowDef="let row; columns: displayedColumns; let i = index;" (click)="onRowSelected(row.data)"> </tr>
 
 </mat-table>
-<mat-paginator style="background-color: #FF5252; color: white;" #size [pageSize]="10" [pageSizeOptions]="[5, 10, 25]" (page)="onPageSizeChanged((size.pageSize),($event))"></mat-paginator>
+<mat-paginator style="background-color: #FF5252; color: white;" [pageSize]="10" [pageSizeOptions]="[5, 10, 25]"></mat-paginator>
