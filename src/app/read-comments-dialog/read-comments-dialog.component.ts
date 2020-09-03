@@ -1,6 +1,5 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatTableDataSource } from '@angular/material';
-import { Comment } from "../app.component";
 @Component({
     selector: 'app-read-comments-dialog-component',
     templateUrl: './read-comments-dialog.component.html',
@@ -17,7 +16,6 @@ export class ReadCommentsDialogComponent implements OnInit {
 
     private _struct: any;
     public something: Item[] = [];
-    public se: Set<Item>;
     private _commentURL: string;
     newArr = []
     ngOnInit(): void {
@@ -35,8 +33,6 @@ export class ReadCommentsDialogComponent implements OnInit {
             this.findReplies('', comment);
         }
 
-        this.se = new Set(this.something)
-
         this.something.forEach((item, index) => {
             if (this.newArr.findIndex(i => i.author == item.author) === -1) {
                 this.newArr.push(item)
@@ -53,17 +49,17 @@ export class ReadCommentsDialogComponent implements OnInit {
             this.something.push(
                 {
                     author: this.getAuthor(depth, comment),
-                    text: this.printReply(depth, comment)
+                    text: this.printReply('', comment)
                 }
             );
         }
         else {
             for (const reply of this.getReplies(comment)) {
-                this.printReply(depth + '-', reply);
+                this.printReply('', reply);
                 this.something.push(
                     {
                         author: this.getAuthor(depth + '---', reply),
-                        text: this.printReply(depth + '---', reply)
+                        text: this.printReply('', reply)
                     }
                 );
                 this.findReplies(depth + '---', reply);

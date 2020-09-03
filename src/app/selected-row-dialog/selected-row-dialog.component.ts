@@ -15,6 +15,9 @@ export class SelectedRowDialogComponent {
             author: string;
             selftext: string;
             title: string;
+            score: number;
+            permalink: string;
+            url:string;
         }
     ) { }
 

@@ -3,13 +3,14 @@ import { NgModule } from '@angular/core';
 
 import { TableBasicExample } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { MatNativeDateModule, MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material';
+
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { DemoMaterialModule } from './material-module';
 import { SelectedRowDialogComponent } from './selected-row-dialog/selected-row-dialog.component';
 import { ReadCommentsDialogComponent } from './read-comments-dialog/read-comments-dialog.component';
 import { ReadCommentsDialogComponentNonThreaded } from './read-comments-dialog-non-threaded/read-comments-dialog-non-threaded.component';
+import { ShowFullImageDialogComponent } from './show-full-image-dialog/show-full-image-dialog.component';
 
 @NgModule({
   imports: [
@@ -18,14 +19,10 @@ import { ReadCommentsDialogComponentNonThreaded } from './read-comments-dialog-n
     FormsModule,
     HttpClientModule,
     DemoMaterialModule,
-    MatNativeDateModule,
     ReactiveFormsModule
   ],
-  entryComponents: [TableBasicExample, SelectedRowDialogComponent, ReadCommentsDialogComponent, ReadCommentsDialogComponentNonThreaded],
-  declarations: [TableBasicExample, SelectedRowDialogComponent, ReadCommentsDialogComponent, ReadCommentsDialogComponentNonThreaded],
-  bootstrap: [TableBasicExample],
-  providers: [
-    { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { appearance: 'fill' } },
-  ]
+  entryComponents: [TableBasicExample, SelectedRowDialogComponent, ReadCommentsDialogComponent, ReadCommentsDialogComponentNonThreaded, ShowFullImageDialogComponent],
+  declarations: [TableBasicExample, SelectedRowDialogComponent, ReadCommentsDialogComponent, ReadCommentsDialogComponentNonThreaded, ShowFullImageDialogComponent],
+  bootstrap: [TableBasicExample]
 })
 export class AppModule { }

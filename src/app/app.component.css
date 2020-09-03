@@ -75,4 +75,5 @@ a {
     background-color: #d14444;
     color: white;
     overflow: hidden;
+    z-index: 1000;
 }

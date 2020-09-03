@@ -7,7 +7,7 @@ import { SelectedRowDialogComponent } from './selected-row-dialog/selected-row-d
 import { FormGroup, FormControl } from '@angular/forms';
 import { ReadCommentsDialogComponent } from './read-comments-dialog/read-comments-dialog.component';
 import { ReadCommentsDialogComponentNonThreaded } from './read-comments-dialog-non-threaded/read-comments-dialog-non-threaded.component';
-import { Observable, Subscription } from 'rxjs';
+import { ShowFullImageDialogComponent } from './show-full-image-dialog/show-full-image-dialog.component';
 
 @Component({
   selector: 'app-root',
@@ -26,16 +26,17 @@ export class TableBasicExample implements OnInit {
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
   public displayedColumns: string[];
-  public dataSource: MatTableDataSource<Observable<FeedItems>>;
+  public dataSource: MatTableDataSource<FeedItems>;
   public commentDataSource: MatTableDataSource<any>;
   public subredditFormGroup: FormGroup;
   private _currentSubreddit: string;
+  beforeId;
+  afterId;
 
   subredditBaseURL: string = 'https://www.reddit.com/r/';
 
 
-  readSelfText(row: { selftext: any; created: any; num_comments: any; title: any; author: any; score: any; permalink: any; }): void {
-    if (!row.selftext) return;
+  readSelfText(row: { selftext: string; created: Date; num_comments: number; title: string; author: string; score: number; permalink: string; url: string }): void {
     this._dialog.open(SelectedRowDialogComponent, {
       data: {
         created: row.created,
@@ -44,7 +45,8 @@ export class TableBasicExample implements OnInit {
         title: row.title,
         author: row.author,
         score: row.score,
-        permalink: row.permalink
+        permalink: row.permalink,
+        url: row.url
       }
     });
   }
@@ -104,14 +106,43 @@ export class TableBasicExample implements OnInit {
     this.getFeed();
   }
 
-  onPageSizeChanged(size: number): void {
-    console.log(`New Feed Size ${size}`);
-    this.getFeed();
+  onPageSizeChanged(size: number, page): void {
+    console.log(page)
+
+    // NEXT
+    if (page.pageIndex > page.previousPageIndex) {
+      this.getFeed();
+
+
+    }
+
+    // PREVIOUS
+    else if (page.pageIndex < page.previousPageIndex) {
+      console.log("orev")
+      this.getFeed();
+    }
+
+
+
+  }
+
+
+  showFullImage(feedItem): void {
+    console.log(feedItem);
+
+    this._dialog.open(ShowFullImageDialogComponent, {
+      height: '80%',
+      width: '80%',
+      data: {
+        feedItem
+      }
+    });
+
   }
 
   ngOnInit(): void {
 
-    this.displayedColumns = ['thumbnail', 'created', 'num_comments', 'author', 'score', 'permalink', 'title', 'comments', 'comments_non_threaded'];
+    this.displayedColumns = ['index', 'thumbnail', 'created', 'num_comments', 'author', 'score', 'permalink', 'title', 'comments', 'comments_non_threaded'];
     this.dataSource = new MatTableDataSource();
     this.commentDataSource = new MatTableDataSource();
 
@@ -131,9 +162,11 @@ export class TableBasicExample implements OnInit {
   }
 
 
+
   getFeed(): void {
 
-    this._httpService.getRequest(this.subredditBaseURL + `${this._currentSubreddit}.json?limit=24`)
+
+    this._httpService.getRequest(this.subredditBaseURL + `${this._currentSubreddit}.json?limit=1000`)
       .pipe(
         map(
           (feedItems: FeedItems): FeedItems => {
@@ -145,9 +178,15 @@ export class TableBasicExample implements OnInit {
           }
         )
       )
-      .subscribe(feedItems => {
+      .subscribe((feedItems: any) => {
+
+        for (const iterator of feedItems.data.children) {
+          console.log(iterator.data.title)
+
+        }
         this.dataSource.data = feedItems.data.children;
         console.log('Feed Refreshed');
+
       });
   }
 }
