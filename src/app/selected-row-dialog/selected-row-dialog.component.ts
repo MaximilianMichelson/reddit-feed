@@ -32,7 +32,7 @@ export class SelectedRowDialogComponent {
         return this._data.id;
     }
 
-    onReadComments(id) {
+    onReadComments(id: string) {
         this._readCommentsService.readComments(id)
     }
 

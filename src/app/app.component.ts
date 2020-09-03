@@ -7,6 +7,7 @@ import { SelectedRowDialogComponent } from './selected-row-dialog/selected-row-d
 import { FormGroup, FormControl } from '@angular/forms';
 import { ReadCommentsDialogComponent } from './read-comments-dialog/read-comments-dialog.component';
 import { ReadCommentsService } from './read-comments.service';
+import { GlobalService } from './global.service';
 
 @Component({
   selector: 'app-root',
@@ -19,7 +20,8 @@ export class TableBasicExample implements OnInit {
   constructor(
     private _httpService: HttpService,
     private _dialog: MatDialog,
-    private _readCommentsService: ReadCommentsService
+    private _readCommentsService: ReadCommentsService,
+    private _globals: GlobalService
   ) { }
 
 
@@ -29,10 +31,6 @@ export class TableBasicExample implements OnInit {
   public dataSource: MatTableDataSource<FeedItems>;
   public commentDataSource: MatTableDataSource<any>;
   public subredditFormGroup: FormGroup;
-
-  public _currentSubreddit: string;
-  public subredditBaseURL: string = 'https://www.reddit.com/r/';
-
 
   readSelfText(row: { selftext: string; created: Date; num_comments: number; title: string; author: string; score: number; permalink: string; url: string, id: string }): void {
     this._dialog.open(SelectedRowDialogComponent, {
@@ -71,7 +69,7 @@ export class TableBasicExample implements OnInit {
   }
 
   onSubredditChange(newSubreddit: string): void {
-    this._currentSubreddit = newSubreddit.toLowerCase();
+    this._globals.currentSubreddit = newSubreddit.toLowerCase();
     this.getFeed();
   }
 
@@ -104,7 +102,8 @@ export class TableBasicExample implements OnInit {
       subreddit: new FormControl('')
     })
 
-    this._currentSubreddit = 'sweden';
+    this._globals.currentSubreddit = 'sweden';
+
 
 
     this.dataSource.paginator = this.paginator;
@@ -120,7 +119,7 @@ export class TableBasicExample implements OnInit {
   getFeed(): void {
 
 
-    this._httpService.getRequest(this.subredditBaseURL + `${this._currentSubreddit}.json?limit=1000`)
+    this._httpService.getRequest(this._globals.subredditBaseURL + `${this._globals.currentSubreddit}.json?limit=1000`)
       .pipe(
         map(
           (feedItems: FeedItems): FeedItems => {

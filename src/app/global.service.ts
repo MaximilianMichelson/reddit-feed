@@ -4,7 +4,23 @@ import { Injectable } from '@angular/core';
   providedIn: 'root'
 })
 export class GlobalService {
-  public currentSubreddit: string = 'sweden';
-  public subredditBaseURL: string = 'https://www.reddit.com/r/';
+  private _currentSubreddit: string;
+  private _subredditBaseURL: string = 'https://www.reddit.com/r/';
   constructor() { }
+
+  get currentSubreddit() {
+    return this._currentSubreddit
+  }
+
+  set currentSubreddit(newSubreddit: string) {
+    this._currentSubreddit = newSubreddit;
+  }
+
+  get subredditBaseURL() {
+    return this._subredditBaseURL
+  }
+
+  set subredditBaseURL(newSubreddit: string) {
+    this._subredditBaseURL = newSubreddit;
+  }
 }
