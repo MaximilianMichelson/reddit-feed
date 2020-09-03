@@ -1,5 +1,6 @@
 import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material';
+import { ReadCommentsService } from '../read-comments.service';
 
 
 @Component({
@@ -17,11 +18,24 @@ export class SelectedRowDialogComponent {
             title: string;
             score: number;
             permalink: string;
-            url:string;
-        }
+            url: string;
+            id: string;
+        },
+        private _readCommentsService: ReadCommentsService
     ) { }
 
     get data() {
         return this._data;
     }
+
+    get id() {
+        return this._data.id;
+    }
+
+    onReadComments(id) {
+        this._readCommentsService.readComments(id)
+    }
+
+
+
 }

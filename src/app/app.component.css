@@ -77,3 +77,8 @@ a {
     overflow: hidden;
     z-index: 1000;
 }
+
+.img{
+    height: 128px;
+    width: 128px;
+}

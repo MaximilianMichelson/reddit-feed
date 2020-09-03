@@ -3,13 +3,18 @@
     padding: 20px;
 }
 
-.title {
+.details {
     color: white;
     background-color: #FF5252;
 }
 
-.text {
+.selftext {
     color: white;
     background-color: #C2185B;
     overflow-wrap: break-word;
+}
+
+.img {
+    max-width: 100%;
+    max-height: 500px;
 }

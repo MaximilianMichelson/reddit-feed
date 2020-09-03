@@ -1,7 +1,7 @@
 <div class="background">
 
-    <div class="title">
-        <p> Title: {{data.title}}</p>
+    <div class="details">
+        <h1> Title: {{data.title}}</h1>
         <p> Created: {{data.created}}</p>
         <p> NumComments: {{data.comments}}</p>
         <p> Author: {{data.author}}</p>
@@ -11,12 +11,26 @@
 
     </div>
 
-    <div class="img">
-        <a href="{{data.url}}"><img  src="{{data.url}}" /></a>
+    <div >
+        <ng-container *ngIf="data.url; then hasUrl; else noUrl"></ng-container>
+        <ng-template #hasUrl>
+            <a href="{{data.url}}"><img class="img" src="{{data.url}}" /></a>
+        </ng-template>
+        <ng-template #noUrl>
+            This post has no image
+        </ng-template>
     </div>
 
-    <div class="text">
-        <p>{{data.selftext}}</p>
+    <div class="selftext">
+        <ng-container *ngIf="data.selftext; then hasSelftext; else noSelftext"></ng-container>
+        <ng-template #hasSelftext>
+            {{data.selftext}}
+        </ng-template>
+        <ng-template #noSelftext>
+            This post has no selftext
+        </ng-template>
     </div>
+
+    <button mat-raised-button (click)="onReadComments(id)">Read Comments</button>
 
 </div>

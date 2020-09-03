@@ -6,8 +6,6 @@ import { MatDialog } from '@angular/material/dialog';
 import { SelectedRowDialogComponent } from './selected-row-dialog/selected-row-dialog.component';
 import { FormGroup, FormControl } from '@angular/forms';
 import { ReadCommentsDialogComponent } from './read-comments-dialog/read-comments-dialog.component';
-import { ReadCommentsDialogComponentNonThreaded } from './read-comments-dialog-non-threaded/read-comments-dialog-non-threaded.component';
-import { ShowFullImageDialogComponent } from './show-full-image-dialog/show-full-image-dialog.component';
 
 @Component({
   selector: 'app-root',
@@ -29,14 +27,12 @@ export class TableBasicExample implements OnInit {
   public dataSource: MatTableDataSource<FeedItems>;
   public commentDataSource: MatTableDataSource<any>;
   public subredditFormGroup: FormGroup;
-  private _currentSubreddit: string;
-  beforeId;
-  afterId;
 
-  subredditBaseURL: string = 'https://www.reddit.com/r/';
+  public _currentSubreddit: string;
+  public subredditBaseURL: string = 'https://www.reddit.com/r/';
 
 
-  readSelfText(row: { selftext: string; created: Date; num_comments: number; title: string; author: string; score: number; permalink: string; url: string }): void {
+  readSelfText(row: { selftext: string; created: Date; num_comments: number; title: string; author: string; score: number; permalink: string; url: string, id: string }): void {
     this._dialog.open(SelectedRowDialogComponent, {
       data: {
         created: row.created,
@@ -46,15 +42,13 @@ export class TableBasicExample implements OnInit {
         author: row.author,
         score: row.score,
         permalink: row.permalink,
-        url: row.url
+        url: row.url,
+        id: row.id
       }
     });
   }
 
   readComments(id: string): void {
-    console.log('comments url  ' + this.subredditBaseURL + this._currentSubreddit + `/comments/${id}.json`);
-
-
     this._httpService.getRequest(this.subredditBaseURL + this._currentSubreddit + `/comments/${id}.json`)
       .subscribe((comments: Comment[]) => {
 
@@ -67,31 +61,6 @@ export class TableBasicExample implements OnInit {
     console.log('Comments Refreshed')
 
     this._dialog.open(ReadCommentsDialogComponent, {
-      height: '80%',
-      width: '80%',
-      data: {
-        comments: this.commentDataSource,
-        commentURL: this.subredditBaseURL + this._currentSubreddit + `/comments/${id}.json`
-      }
-    });
-  }
-
-  readCommentsNonThreaded(id: string): void {
-    console.log('comments url  ' + this.subredditBaseURL + this._currentSubreddit + `/comments/${id}.json`);
-
-
-    this._httpService.getRequest(this.subredditBaseURL + this._currentSubreddit + `/comments/${id}.json`)
-      .subscribe((comments: Comment[]) => {
-
-        // Comments[0] is the post; Comments[1] is the real comments.
-        this.commentDataSource.data = comments[1].data.children;
-
-
-      });
-
-    console.log('Comments Refreshed')
-
-    this._dialog.open(ReadCommentsDialogComponentNonThreaded, {
       height: '80%',
       width: '80%',
       data: {
@@ -126,23 +95,9 @@ export class TableBasicExample implements OnInit {
 
   }
 
-
-  showFullImage(feedItem): void {
-    console.log(feedItem);
-
-    this._dialog.open(ShowFullImageDialogComponent, {
-      height: '80%',
-      width: '80%',
-      data: {
-        feedItem
-      }
-    });
-
-  }
-
   ngOnInit(): void {
 
-    this.displayedColumns = ['index', 'thumbnail', 'created', 'num_comments', 'author', 'score', 'permalink', 'title', 'comments', 'comments_non_threaded'];
+    this.displayedColumns = ['index', 'thumbnail', 'created', 'num_comments', 'author', 'score', 'permalink', 'title', 'comments'];
     this.dataSource = new MatTableDataSource();
     this.commentDataSource = new MatTableDataSource();
 
