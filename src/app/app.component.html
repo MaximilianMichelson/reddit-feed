@@ -54,7 +54,7 @@
 
   <ng-container matColumnDef="comments">
     <th mat-header-cell *matHeaderCellDef> Comments </th>
-    <td mat-cell *matCellDef="let element"> <button mat-raised-button (click)="readComments(element.data.id); $event.stopPropagation()">Comments</button> </td>
+    <td mat-cell *matCellDef="let element"> <button mat-raised-button (click)="onReadComments(element.data.id); $event.stopPropagation()">Comments</button> </td>
   </ng-container>
 
   <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: false"></tr>

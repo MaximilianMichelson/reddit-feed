@@ -6,6 +6,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { SelectedRowDialogComponent } from './selected-row-dialog/selected-row-dialog.component';
 import { FormGroup, FormControl } from '@angular/forms';
 import { ReadCommentsDialogComponent } from './read-comments-dialog/read-comments-dialog.component';
+import { ReadCommentsService } from './read-comments.service';
 
 @Component({
   selector: 'app-root',
@@ -17,7 +18,8 @@ export class TableBasicExample implements OnInit {
 
   constructor(
     private _httpService: HttpService,
-    private _dialog: MatDialog
+    private _dialog: MatDialog,
+    private _readCommentsService: ReadCommentsService
   ) { }
 
 
@@ -48,26 +50,24 @@ export class TableBasicExample implements OnInit {
     });
   }
 
-  readComments(id: string): void {
-    this._httpService.getRequest(this.subredditBaseURL + this._currentSubreddit + `/comments/${id}.json`)
-      .subscribe((comments: Comment[]) => {
+  // readComments(id: string): void {
+  //   this._httpService.getRequest(this.subredditBaseURL + this._currentSubreddit + `/comments/${id}.json`)
+  //     .subscribe((comments: Comment[]) => {
+  //       // Comments[0] is the post; Comments[1] is the real comments.
+  //       this.commentDataSource.data = comments[1].data.children;
+  //       this._dialog.open(ReadCommentsDialogComponent, {
+  //         height: '80%',
+  //         width: '80%',
+  //         data: {
+  //           comments: this.commentDataSource,
+  //           commentURL: this.subredditBaseURL + this._currentSubreddit + `/comments/${id}.json`
+  //         }
+  //       });
+  //     });
+  // }
 
-        // Comments[0] is the post; Comments[1] is the real comments.
-        this.commentDataSource.data = comments[1].data.children;
-
-
-      });
-
-    console.log('Comments Refreshed')
-
-    this._dialog.open(ReadCommentsDialogComponent, {
-      height: '80%',
-      width: '80%',
-      data: {
-        comments: this.commentDataSource,
-        commentURL: this.subredditBaseURL + this._currentSubreddit + `/comments/${id}.json`
-      }
-    });
+  onReadComments(id) {
+    this._readCommentsService.readComments(id)
   }
 
   onSubredditChange(newSubreddit: string): void {
@@ -76,19 +76,18 @@ export class TableBasicExample implements OnInit {
   }
 
   onPageSizeChanged(size: number, page): void {
-    console.log(page)
+
 
     // NEXT
     if (page.pageIndex > page.previousPageIndex) {
-      this.getFeed();
+
 
 
     }
 
     // PREVIOUS
     else if (page.pageIndex < page.previousPageIndex) {
-      console.log("orev")
-      this.getFeed();
+
     }
 
 
@@ -135,10 +134,7 @@ export class TableBasicExample implements OnInit {
       )
       .subscribe((feedItems: any) => {
 
-        for (const iterator of feedItems.data.children) {
-          console.log(iterator.data.title)
 
-        }
         this.dataSource.data = feedItems.data.children;
         console.log('Feed Refreshed');
 

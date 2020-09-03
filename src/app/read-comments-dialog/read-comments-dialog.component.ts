@@ -9,8 +9,8 @@ export class ReadCommentsDialogComponent implements OnInit {
 
     constructor(
         @Inject(MAT_DIALOG_DATA) private injectedData: {
-            comments: MatTableDataSource<any>;
-            commentURL: string
+            comments: any;
+            commentURL: string;
         }
     ) { }
 
@@ -19,9 +19,18 @@ export class ReadCommentsDialogComponent implements OnInit {
     private _commentURL: string;
     newArr = []
     ngOnInit(): void {
-        this._struct = {
-            comments: this.injectedData.comments.data
-        };
+
+        if (this.injectedData.comments.data) {
+            this._struct = {
+                comments: this.injectedData.comments.data
+            };
+        }
+        else {
+            this._struct = {
+                comments: this.injectedData.comments
+            };
+        }
+
 
         for (const comment of this._struct.comments) {
             this.something.push(
@@ -77,7 +86,6 @@ export class ReadCommentsDialogComponent implements OnInit {
     }
 
     printReply(depth, reply): string {
-        console.log(depth + reply.data.body);
         return depth + reply.data.body;
     }
 
@@ -93,9 +101,7 @@ export class ReadCommentsDialogComponent implements OnInit {
         return this._struct;
     }
 
-    commentLog() {
-        console.log(this.something)
-    }
+
 
 }
 
