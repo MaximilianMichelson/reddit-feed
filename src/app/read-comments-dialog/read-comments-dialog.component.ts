@@ -1,5 +1,6 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material';
+import { GlobalService } from '../services/global.service';
 
 @Component({
     selector: 'app-read-comments-dialog-component',
@@ -10,11 +11,13 @@ export class ReadCommentsDialogComponent implements OnInit {
 
     private _commentsAndAllNestedComments: Comment[];
 
+
     constructor(
         @Inject(MAT_DIALOG_DATA) private readonly injectedData: {
             comments: { data?: any };
             commentURL: string;
-        }
+        },
+        private readonly _globals: GlobalService
     ) { }
 
     ngOnInit(): void {
@@ -28,7 +31,9 @@ export class ReadCommentsDialogComponent implements OnInit {
             this._commentsAndAllNestedComments.push(
                 {
                     author: this.getAuthor('', comment),
-                    text: this.printReply('', comment)
+                    text: this.printReply('', comment),
+                    score: this.getScore(comment),
+                    created: comment.data.created_utc * 1000
                 }
             );
 
@@ -53,7 +58,9 @@ export class ReadCommentsDialogComponent implements OnInit {
             this._commentsAndAllNestedComments.push(
                 {
                     author: this.getAuthor(depth, comment),
-                    text: this.printReply('', comment)
+                    text: this.printReply('', comment),
+                    score: this.getScore(comment),
+                    created: comment.data.created_utc * 1000
                 }
             );
         } else {
@@ -62,7 +69,9 @@ export class ReadCommentsDialogComponent implements OnInit {
                 this._commentsAndAllNestedComments.push(
                     {
                         author: this.getAuthor(depth + '-', reply),
-                        text: this.printReply('', reply)
+                        text: this.printReply('', reply),
+                        score: this.getScore(comment),
+                        created: reply.data.created_utc * 1000
                     }
                 );
                 this.findReplies(depth + '-', reply);
@@ -86,6 +95,10 @@ export class ReadCommentsDialogComponent implements OnInit {
         return `${depth}${reply.data.author}`;
     }
 
+    private getScore(reply: Reply): number {
+        return reply.data.score;
+    }
+
     get comments(): Comment[] {
         return this._commentsAndAllNestedComments;
     }
@@ -97,17 +110,23 @@ export class ReadCommentsDialogComponent implements OnInit {
     getPaddingLeft(matches: number): string {
         return `${matches * 25}px`;
     }
+
+    timeAgo(unixTimestamp: number): string {
+        return this._globals.timeAgo(unixTimestamp);
+    }
 }
 
 interface Comment {
-    author: any,
-    text: any,
+    author: string;
+    text: string;
+    score: number;
+    created: number;
     data?: {
         children: {
             data: {
                 replies: {
-                    data: Reply[]
-                }
+                    data: Reply[];
+                };
             };
         }[];
     };
@@ -116,6 +135,8 @@ interface Comment {
 interface Reply {
     data: {
         author: string,
-        body: string
+        body: string,
+        score: number,
+        created: string
     };
 }

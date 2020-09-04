@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
-import { MatTableDataSource, MatPaginator } from '@angular/material';
+import { MatTableDataSource, MatPaginator, MatSnackBar } from '@angular/material';
 import { HttpService } from './http-service/http-service';
 import { map } from 'rxjs/operators';
 import { MatDialog } from '@angular/material/dialog';
@@ -20,7 +20,8 @@ export class RedditTableComponent implements OnInit {
     private readonly _httpService: HttpService,
     private readonly _dialog: MatDialog,
     private readonly _readCommentsService: ReadCommentsService,
-    private readonly _globals: GlobalService
+    private readonly _globals: GlobalService,
+    private readonly _snackBar: MatSnackBar
   ) { }
 
 
@@ -87,7 +88,12 @@ export class RedditTableComponent implements OnInit {
           }
         )
       )
-      .subscribe(redditItems => this._dataSource.data = redditItems);
+      .subscribe(
+        redditItems => this._dataSource.data = redditItems,
+        _err => this._snackBar.open('Subreddit does not exist', 'OK', {
+          duration: 5000
+        })
+      );
   }
 
   get subredditFormGroup(): FormGroup {
@@ -101,6 +107,11 @@ export class RedditTableComponent implements OnInit {
   get displayedColumns(): string[] {
     return this._displayedColumns;
   }
+
+  timeAgo(unixTimestamp: number): string {
+    return this._globals.timeAgo(unixTimestamp * 1000);
+  }
+
 }
 
 interface RedditListing {

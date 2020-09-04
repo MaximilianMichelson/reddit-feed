@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import {
   MatButtonModule, MatDialogModule, MatInputModule, MatListModule, MatPaginatorModule, MatTableModule,
-  MatToolbarModule, MAT_FORM_FIELD_DEFAULT_OPTIONS
+  MatToolbarModule, MAT_FORM_FIELD_DEFAULT_OPTIONS, MatSnackBarModule
 } from '@angular/material';
 
 
@@ -13,7 +13,8 @@ import {
     MatListModule,
     MatPaginatorModule,
     MatTableModule,
-    MatToolbarModule
+    MatToolbarModule,
+    MatSnackBarModule
   ],
   providers: [
     { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { appearance: 'fill' } },

@@ -1,20 +1,24 @@
-<mat-toolbar class="toolbar">
+<div>
+  <mat-toolbar class="toolbar">
 
-  <form [formGroup]="subredditFormGroup">
-    <mat-form-field>
-      <mat-label>Subreddit</mat-label>
-      <input matInput #newSubreddit value="{{ subredditFormGroup.controls['subreddit'].value }}">
-    </mat-form-field>
-    
-  </form>
-  <button mat-raised-button (click)="onSubredditChange(newSubreddit.value)" [disabled]="!subredditFormGroup.valid">Change Subreddit</button>
-</mat-toolbar>
-  
+    <form [formGroup]="subredditFormGroup">
+      <mat-form-field>
+        <mat-label>Subreddit</mat-label>
+        <input style="background-color: #FF5252;" matInput #newSubreddit
+          value="{{ subredditFormGroup.controls['subreddit'].value }}">
+      </mat-form-field>
+    </form>
+
+    <button mat-raised-button (click)="onSubredditChange(newSubreddit.value)">Change Subreddit</button>
+
+  </mat-toolbar>
+</div>
+
 <mat-table [dataSource]="dataSource">
 
   <ng-container matColumnDef="index">
     <th mat-header-cell *matHeaderCellDef> Index </th>
-    <td mat-cell  *matCellDef="let element; let i = index;">{{i+1}}</td>
+    <td mat-cell *matCellDef="let element; let i = index;">{{i+1}}</td>
   </ng-container>
 
   <ng-container matColumnDef="thumbnail">
@@ -24,7 +28,7 @@
 
   <ng-container matColumnDef="created">
     <th mat-header-cell *matHeaderCellDef> Created </th>
-    <td mat-cell *matCellDef="let element"> {{element.data.created}} </td>
+    <td mat-cell *matCellDef="let element"> {{element.data.created}} <br> ({{timeAgo(element.data.created_utc)}})</td>
   </ng-container>
 
   <ng-container matColumnDef="num_comments">
@@ -54,11 +58,13 @@
 
   <ng-container matColumnDef="comments">
     <th mat-header-cell *matHeaderCellDef> Comments </th>
-    <td mat-cell *matCellDef="let element"> <button mat-raised-button (click)="onReadComments(element.data.id); $event.stopPropagation()">Comments</button> </td>
+    <td mat-cell *matCellDef="let element"> <button mat-raised-button
+        (click)="onReadComments(element.data.id); $event.stopPropagation()">Comments</button> </td>
   </ng-container>
 
   <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: false"></tr>
   <tr mat-row *matRowDef="let row; columns: displayedColumns; let i = index;" (click)="onRowSelected(row.data)"> </tr>
 
 </mat-table>
-<mat-paginator style="background-color: #FF5252; color: white;" [pageSize]="10" [pageSizeOptions]="[5, 10, 25]"></mat-paginator>
+<mat-paginator style="background-color: #FF5252; color: white;" [pageSize]="10" [pageSizeOptions]="[5, 10, 25]">
+</mat-paginator>
