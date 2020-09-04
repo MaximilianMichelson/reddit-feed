@@ -1,20 +1,18 @@
 <div class="background">
 
     <div class="details">
-        <h1> Title: {{data.title}}</h1>
-        <p> Created: {{data.created}}</p>
-        <p> NumComments: {{data.comments}}</p>
-        <p> Author: {{data.author}}</p>
-        <p> Score: {{data.score}}</p>
-        <p> Permalink: {{data.permalink}}</p>
-
-
+        <h1> Title: {{title}}</h1>
+        <p> Created: {{created}}</p>
+        <p> Number of Comments: {{numOfComments}}</p>
+        <p> Author: {{author}}</p>
+        <p> Score: {{score}}</p>
+        <p> Permalink: {{permalink}}</p>
     </div>
 
-    <div >
-        <ng-container *ngIf="data.url; then hasUrl; else noUrl"></ng-container>
+    <div>
+        <ng-container *ngIf="url; then hasUrl; else noUrl"></ng-container>
         <ng-template #hasUrl>
-            <a href="{{data.url}}"><img class="img" src="{{data.url}}" /></a>
+            <a href="{{url}}"><img class="img" src="{{url}}" /></a>
         </ng-template>
         <ng-template #noUrl>
             This post has no image
@@ -22,9 +20,9 @@
     </div>
 
     <div class="selftext">
-        <ng-container *ngIf="data.selftext; then hasSelftext; else noSelftext"></ng-container>
+        <ng-container *ngIf="selftext; then hasSelftext; else noSelftext"></ng-container>
         <ng-template #hasSelftext>
-            {{data.selftext}}
+            {{selftext}}
         </ng-template>
         <ng-template #noSelftext>
             This post has no selftext

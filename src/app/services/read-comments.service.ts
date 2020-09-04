@@ -11,11 +11,15 @@ import { GlobalService } from './global.service';
 export class ReadCommentsService {
 
   constructor(
-    private _httpService: HttpService,
-    private _dialog: MatDialog,
-    private _global: GlobalService
+    private readonly _httpService: HttpService,
+    private readonly _dialog: MatDialog,
+    private readonly _global: GlobalService
   ) { }
 
+  /**
+   * Opens a new window containing the post's comments.
+   * @param id The id of the post to get comments from.
+   */
   readComments(id: string): void {
     this._httpService.getRequest(this._global.subredditBaseURL + this._global.currentSubreddit + `/comments/${id}.json`)
       .subscribe((comments: Comment[]) => {
@@ -23,8 +27,8 @@ export class ReadCommentsService {
           height: '80%',
           width: '80%',
           data: {
-            comments: comments[1].data.children,
             // Comments[0] is the post; Comments[1] is the real comments.
+            comments: comments[1].data.children,
             commentURL: this._global.subredditBaseURL + this._global.currentSubreddit + `/comments/${id}.json`
           }
         });

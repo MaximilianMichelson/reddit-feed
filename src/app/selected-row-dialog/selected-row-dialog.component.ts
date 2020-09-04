@@ -2,7 +2,6 @@ import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material';
 import { ReadCommentsService } from '../services/read-comments.service';
 
-
 @Component({
     selector: 'app-selected-row-dialog-component',
     templateUrl: './selected-row-dialog.component.html',
@@ -24,18 +23,43 @@ export class SelectedRowDialogComponent {
         private readonly _readCommentsService: ReadCommentsService
     ) { }
 
-    get data() {
-        return this._data;
-    }
-
-    get id() {
+    get id(): string {
         return this._data.id;
     }
 
-    onReadComments(id: string) {
-        this._readCommentsService.readComments(id);
+    get url(): string {
+        return this._data.url;
     }
 
+    get permalink(): string {
+        return this._data.permalink;
+    }
 
+    get score(): number {
+        return this._data.score;
+    }
 
+    get title(): string {
+        return this._data.title;
+    }
+
+    get selftext(): string {
+        return this._data.selftext;
+    }
+
+    get author(): string {
+        return this._data.author;
+    }
+
+    get numOfComments(): number {
+        return this._data.comments;
+    }
+
+    get created(): Date {
+        return this._data.created;
+    }
+
+    onReadComments(id: string): void {
+        this._readCommentsService.readComments(id);
+    }
 }

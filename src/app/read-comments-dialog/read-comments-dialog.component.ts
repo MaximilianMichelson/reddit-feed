@@ -84,11 +84,11 @@ export class ReadCommentsDialogComponent implements OnInit {
     }
 
     printReply(depth: string, reply: any): string {
-        return depth + reply.data.body;
+        return `${depth}${reply.data.body}`;
     }
 
     getAuthor(depth: string, reply: any): string {
-        return depth + reply.data.author;
+        return `${depth}${reply.data.author}`;
     }
 
     get commentURL() {
