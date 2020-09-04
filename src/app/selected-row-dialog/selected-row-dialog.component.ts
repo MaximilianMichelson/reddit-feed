@@ -62,4 +62,8 @@ export class SelectedRowDialogComponent {
     onReadComments(id: string): void {
         this._readCommentsService.readComments(id);
     }
+
+    imageNotFound(event: any): void {
+        event.target.src = "../../assets/not_found.jpg";
+    }
 }

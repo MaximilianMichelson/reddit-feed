@@ -18,32 +18,43 @@
 
   <ng-container matColumnDef="index">
     <th mat-header-cell *matHeaderCellDef> Index </th>
-    <td mat-cell *matCellDef="let element; let i = index;">{{i+1}}</td>
+    <td mat-cell *matCellDef="let element; let i = index;">
+      <p>{{i+1}}</p>
+    </td>
   </ng-container>
 
   <ng-container matColumnDef="thumbnail">
     <th mat-header-cell *matHeaderCellDef> Thumbnail </th>
-    <td mat-cell *matCellDef="let element"><img class="img" [src]="element.data.thumbnail" /></td>
+    <td mat-cell *matCellDef="let element"><img class="img" [src]="element.data.thumbnail"
+        (error)="imageNotFound($event)" /></td>
   </ng-container>
 
   <ng-container matColumnDef="created">
     <th mat-header-cell *matHeaderCellDef> Created </th>
-    <td mat-cell *matCellDef="let element"> {{element.data.created}} <br> ({{timeAgo(element.data.created_utc)}})</td>
+    <td mat-cell *matCellDef="let element">
+      <p>{{element.data.created}} <br> ({{timeAgo(element.data.created_utc)}})</p>
+    </td>
   </ng-container>
 
   <ng-container matColumnDef="num_comments">
     <th mat-header-cell *matHeaderCellDef> Comments </th>
-    <td mat-cell *matCellDef="let element"> {{element.data.num_comments}} </td>
+    <td mat-cell *matCellDef="let element">
+      <p>{{element.data.num_comments}} </p>
+    </td>
   </ng-container>
 
   <ng-container matColumnDef="author">
     <th mat-header-cell *matHeaderCellDef> Author </th>
-    <td mat-cell *matCellDef="let element"> {{element.data.author}} </td>
+    <td mat-cell *matCellDef="let element">
+      <p> {{element.data.author}}</p>
+    </td>
   </ng-container>
 
   <ng-container matColumnDef="score">
     <th mat-header-cell *matHeaderCellDef> Score </th>
-    <td mat-cell *matCellDef="let element"> {{element.data.score}} </td>
+    <td mat-cell *matCellDef="let element">
+      <p>{{element.data.score}} </p>
+    </td>
   </ng-container>
 
   <ng-container matColumnDef="permalink">
@@ -53,7 +64,9 @@
 
   <ng-container matColumnDef="title">
     <th mat-header-cell *matHeaderCellDef> Title </th>
-    <td mat-cell *matCellDef="let element"> {{element.data.title}} </td>
+    <td mat-cell *matCellDef="let element">
+      <p>{{element.data.title}}</p>
+    </td>
   </ng-container>
 
   <ng-container matColumnDef="comments">

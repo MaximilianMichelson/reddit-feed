@@ -12,7 +12,7 @@
     <div>
         <ng-container *ngIf="url; then hasUrl; else noUrl"></ng-container>
         <ng-template #hasUrl>
-            <a href="{{url}}"><img class="img" src="{{url}}" /></a>
+            <a href="{{url}}"><img class="img" src="{{url}}" (error)="imageNotFound($event)" /></a>
         </ng-template>
         <ng-template #noUrl>
             This post has no image

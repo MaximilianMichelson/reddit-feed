@@ -11,7 +11,6 @@ export class ReadCommentsDialogComponent implements OnInit {
 
     private _commentsAndAllNestedComments: Comment[];
 
-
     constructor(
         @Inject(MAT_DIALOG_DATA) private readonly injectedData: {
             comments: { data?: any };

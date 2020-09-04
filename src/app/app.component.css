@@ -47,26 +47,25 @@ table {
     border-right: 2px solid rgba(0, 0, 0, 0.12);
     text-align: center;
     color: white;
-    text-align: center;
-    justify-content:center;
-
 }
 
 a {
     color: lightblue;
-  }
+}
 
 .mat-header-cell {
     text-align: center;
     background-color: #FF5252;
     color: white;
     font-size: x-large;
+    padding-bottom: 10px;
     padding-top: 10px;
     border-bottom: 2px solid rgba(0, 0, 0);
     border-top: 2px solid rgba(0, 0, 0, 0.12);
     border-left: 2px solid rgba(0, 0, 0, 0.12);
     border-right: 2px solid rgba(0, 0, 0, 0.12);
 }
+
 .toolbar {
     margin-top: 25px;
     padding-top: 15px;
@@ -78,7 +77,8 @@ a {
     z-index: 1000;
 }
 
-.img{
+.img {
     height: 128px;
     width: 128px;
+    margin-bottom: -13px;
 }

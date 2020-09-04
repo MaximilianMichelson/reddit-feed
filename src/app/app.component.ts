@@ -112,6 +112,10 @@ export class RedditTableComponent implements OnInit {
     return this._globals.timeAgo(unixTimestamp * 1000);
   }
 
+  imageNotFound(event: any): void {
+    event.target.src = "../assets/not_found.jpg";
+  }
+
 }
 
 interface RedditListing {
