@@ -1,16 +1,18 @@
-<div class="temp">
-    <p>{{commentURL}}</p>
+<div>
+    <mat-list>
+        <mat-list-item *ngFor="let link of comments;">
+            <ng-container  [ngTemplateOutlet]="(amountOfDashes(link.author) > 0) ?complexLink : simpleLink"
+                [ngTemplateOutletContext]="{link:link}">
+            </ng-container>
 
-    <div>
+            <ng-template #simpleLink let-link='link'>
+                <p>{{link.author}} : {{link.text}}</p>
+            </ng-template>
 
-        <mat-list >
-            <mat-list-item *ngFor="let comment of something;">
-                {{comment.author}} : {{comment.text}}
-            </mat-list-item>
-
-        </mat-list>
-
-    </div>
-
-
+            <ng-template #complexLink let-link='link'>
+                <p [style.padding-left]="getPaddingLeft(amountOfDashes(link.author))">
+                    {{link.author}} :{{link.text}}</p>
+            </ng-template>
+        </mat-list-item>
+    </mat-list>
 </div>

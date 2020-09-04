@@ -1,5 +1,6 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { MAT_DIALOG_DATA, MatTableDataSource } from '@angular/material';
+import { MAT_DIALOG_DATA } from '@angular/material';
+
 @Component({
     selector: 'app-read-comments-dialog-component',
     templateUrl: './read-comments-dialog.component.html',
@@ -7,54 +8,49 @@ import { MAT_DIALOG_DATA, MatTableDataSource } from '@angular/material';
 })
 export class ReadCommentsDialogComponent implements OnInit {
 
+    private _commentsAndAllNestedComments: Comment[];
+
     constructor(
         @Inject(MAT_DIALOG_DATA) private readonly injectedData: {
-            comments: any;
+            comments: { data?: any };
             commentURL: string;
         }
     ) { }
 
-    private _struct: any;
-    public something: Item[] = [];
-    private _commentURL: string;
-    newArr = [];
     ngOnInit(): void {
 
-        if (this.injectedData.comments.data) {
-            this._struct = {
-                comments: this.injectedData.comments.data
-            };
-        } else {
-            this._struct = {
-                comments: this.injectedData.comments
-            };
-        }
+        this._commentsAndAllNestedComments = [];
+        const comments = (this.injectedData.comments.data) ? this.injectedData.comments.data : this.injectedData.comments;
+        const noDuplicatesArray: Comment[] = [];
 
-
-        for (const comment of this._struct.comments) {
-            this.something.push(
+        // Get All Comments
+        for (const comment of comments) {
+            this._commentsAndAllNestedComments.push(
                 {
                     author: this.getAuthor('', comment),
                     text: this.printReply('', comment)
                 }
             );
+
+            // Get Nested Comments
             this.findReplies('', comment);
         }
 
-        this.something.forEach((item, index) => {
-            if (this.newArr.findIndex(i => i.author === item.author) === -1) {
-                this.newArr.push(item);
+        // Remove Duplicated
+        for (const comment of this._commentsAndAllNestedComments) {
+            if (noDuplicatesArray.findIndex(i => i.author === comment.author) === -1) {
+                noDuplicatesArray.push(comment);
             }
+        }
 
-        });
-        this.something = this.newArr;
+        this._commentsAndAllNestedComments = noDuplicatesArray;
     }
 
 
-    findReplies(depth: string, comment) {
+    private findReplies(depth: string, comment: any): void {
         if (!this.hasReplies(comment)) {
             this.printReply(depth, comment);
-            this.something.push(
+            this._commentsAndAllNestedComments.push(
                 {
                     author: this.getAuthor(depth, comment),
                     text: this.printReply('', comment)
@@ -63,48 +59,63 @@ export class ReadCommentsDialogComponent implements OnInit {
         } else {
             for (const reply of this.getReplies(comment)) {
                 this.printReply('', reply);
-                this.something.push(
+                this._commentsAndAllNestedComments.push(
                     {
-                        author: this.getAuthor(depth + '---', reply),
+                        author: this.getAuthor(depth + '-', reply),
                         text: this.printReply('', reply)
                     }
                 );
-                this.findReplies(depth + '---', reply);
+                this.findReplies(depth + '-', reply);
             }
         }
     }
 
-
-    hasReplies(comment: any): boolean {
+    private hasReplies(comment: any): boolean {
         return comment.data.replies;
     }
 
-    getReplies(comment: any): any[] {
+    private getReplies(comment: any): any[] {
         return comment.data.replies.data.children;
     }
 
-    printReply(depth: string, reply: any): string {
+    private printReply(depth: string, reply: Reply): string {
         return `${depth}${reply.data.body}`;
     }
 
-    getAuthor(depth: string, reply: any): string {
+    private getAuthor(depth: string, reply: Reply): string {
         return `${depth}${reply.data.author}`;
     }
 
-    get commentURL() {
-        return this._commentURL;
+    get comments(): Comment[] {
+        return this._commentsAndAllNestedComments;
     }
 
-    get comments() {
-        return this._struct;
+    amountOfDashes(text: string): number {
+        return (text.match(/-/g) || []).length;
     }
 
-
-
+    getPaddingLeft(matches: number): string {
+        return `${matches * 25}px`;
+    }
 }
 
+interface Comment {
+    author: any,
+    text: any,
+    data?: {
+        children: {
+            data: {
+                replies: {
+                    data: Reply[]
+                }
+            };
+        }[];
+    };
+}
 
-interface Item {
-    author: string;
-    text: string;
+interface Reply {
+    data: {
+        author: string,
+        body: string
+    };
 }

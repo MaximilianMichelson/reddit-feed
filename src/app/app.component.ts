@@ -128,11 +128,3 @@ interface TableRow {
   id: string;
 }
 
-// TODO FIX
-export interface Comment {
-  data: {
-    children: {
-      data: { replies: { data: any[] } }[];
-    }[];
-  };
-}
