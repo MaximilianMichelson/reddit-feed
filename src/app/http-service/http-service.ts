@@ -8,7 +8,7 @@ import { Observable } from 'rxjs/internal/Observable';
 })
 export class HttpService {
 
-  constructor(private _http: HttpClient) { }
+  constructor(private readonly _http: HttpClient) { }
 
   public getRequest(url: string): Observable<unknown> {
     return this._http.get(url).pipe(
@@ -22,15 +22,12 @@ export class HttpService {
    */
   private handleError(error: any): void {
     if (error.status === 0) {
-      console.log("Backend is probably off");
-    }
-    else if(error.status === 400){
-      console.log("Bad Request");
-    }
-    else if(error.status === 404){
-      console.log("Route not found");
-    }
-    else {
+      console.log('Backend is probably off');
+    } else if (error.status === 400) {
+      console.log('Bad Request');
+    } else if (error.status === 404) {
+      console.log('Route not found');
+    } else {
       console.log(error);
     }
   }

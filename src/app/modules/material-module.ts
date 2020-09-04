@@ -1,5 +1,8 @@
 import { NgModule } from '@angular/core';
-import { MatButtonModule, MatDialogModule, MatInputModule, MatListModule, MatPaginatorModule, MatTableModule, MatToolbarModule, MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material';
+import {
+  MatButtonModule, MatDialogModule, MatInputModule, MatListModule, MatPaginatorModule, MatTableModule,
+  MatToolbarModule, MAT_FORM_FIELD_DEFAULT_OPTIONS
+} from '@angular/material';
 
 
 @NgModule({

@@ -1,7 +1,7 @@
 
 import { NgModule } from '@angular/core';
 
-import { TableBasicExample } from './app.component';
+import { RedditTableComponent } from './app.component';
 import { AngularMaterialModule } from './modules/material-module';
 import { SelectedRowDialogComponent } from './selected-row-dialog/selected-row-dialog.component';
 import { ReadCommentsDialogComponent } from './read-comments-dialog/read-comments-dialog.component';
@@ -12,8 +12,8 @@ import { AngularModule } from './modules/angular-module';
     AngularModule,
     AngularMaterialModule,
   ],
-  entryComponents: [TableBasicExample, SelectedRowDialogComponent, ReadCommentsDialogComponent],
-  declarations: [TableBasicExample, SelectedRowDialogComponent, ReadCommentsDialogComponent],
-  bootstrap: [TableBasicExample]
+  entryComponents: [RedditTableComponent, SelectedRowDialogComponent, ReadCommentsDialogComponent],
+  declarations: [RedditTableComponent, SelectedRowDialogComponent, ReadCommentsDialogComponent],
+  bootstrap: [RedditTableComponent]
 })
 export class AppModule { }

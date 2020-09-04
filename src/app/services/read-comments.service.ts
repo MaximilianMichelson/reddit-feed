@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpService } from '../http-service/http-service';
 import { ReadCommentsDialogComponent } from '../read-comments-dialog/read-comments-dialog.component';
 import { MatDialog } from '@angular/material';
-import { Comment } from "../app.component";
+import { Comment } from '../app.component';
 import { GlobalService } from './global.service';
 
 @Injectable({

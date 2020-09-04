@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { MatTableDataSource, MatPaginator } from '@angular/material';
-import { HttpService } from './http-service/http-service'
+import { HttpService } from './http-service/http-service';
 import { map } from 'rxjs/operators';
 import { MatDialog } from '@angular/material/dialog';
 import { SelectedRowDialogComponent } from './selected-row-dialog/selected-row-dialog.component';
@@ -14,23 +14,23 @@ import { GlobalService } from './services/global.service';
   styleUrls: ['./app.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class TableBasicExample implements OnInit {
+export class RedditTableComponent implements OnInit {
 
   constructor(
-    private _httpService: HttpService,
-    private _dialog: MatDialog,
-    private _readCommentsService: ReadCommentsService,
-    private _globals: GlobalService
+    private readonly _httpService: HttpService,
+    private readonly _dialog: MatDialog,
+    private readonly _readCommentsService: ReadCommentsService,
+    private readonly _globals: GlobalService
   ) { }
 
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
   private _displayedColumns: string[];
-  private _dataSource: MatTableDataSource<redditItem>;
+  private _dataSource: MatTableDataSource<RedditItem>;
   private _subredditFormGroup: FormGroup;
 
-  onRowSelected(row: tableRow): void {
+  onRowSelected(row: TableRow): void {
     this._dialog.open(SelectedRowDialogComponent, {
       data: {
         created: row.created,
@@ -58,12 +58,12 @@ export class TableBasicExample implements OnInit {
   ngOnInit(): void {
     this._subredditFormGroup = new FormGroup({
       subreddit: new FormControl('sweden')
-    })
+    });
 
     this._displayedColumns = ['index', 'thumbnail', 'created', 'num_comments', 'author', 'score', 'permalink', 'title', 'comments'];
     this._dataSource = new MatTableDataSource();
 
-    this._globals.currentSubreddit = this.subredditFormGroup.controls['subreddit'].value;
+    this._globals.currentSubreddit = this.subredditFormGroup.controls.subreddit.value;
     this._dataSource.paginator = this.paginator;
     this._dataSource.paginator._intl.itemsPerPageLabel = 'limit';
     this._dataSource.paginator._intl.nextPageLabel = 'Next';
@@ -78,7 +78,7 @@ export class TableBasicExample implements OnInit {
     this._httpService.getRequest(this._globals.subredditBaseURL + `${this._globals.currentSubreddit}.json?limit=1000`)
       .pipe(
         map(
-          (listing: redditListing): redditItem[] => {
+          (listing: RedditListing): RedditItem[] => {
             listing.data.children.forEach(element => {
               element.data.created = new Date(Number(element.data.created) * 1000).toLocaleDateString('sv-SV');
               element.data.permalink = `https://reddit.com/${element.data.permalink}`;
@@ -94,7 +94,7 @@ export class TableBasicExample implements OnInit {
     return this._subredditFormGroup;
   }
 
-  get dataSource(): MatTableDataSource<redditItem> {
+  get dataSource(): MatTableDataSource<RedditItem> {
     return this._dataSource;
   }
 
@@ -103,20 +103,20 @@ export class TableBasicExample implements OnInit {
   }
 }
 
-interface redditListing {
+interface RedditListing {
   data: {
-    children: redditItem[];
+    children: RedditItem[];
   };
 }
 
-interface redditItem {
+interface RedditItem {
   data: {
     created: string;
     permalink: string;
   };
 }
 
-interface tableRow {
+interface TableRow {
   selftext: string;
   created: Date;
   num_comments: number;
@@ -128,7 +128,7 @@ interface tableRow {
   id: string;
 }
 
-//TODO FIX
+// TODO FIX
 export interface Comment {
   data: {
     children: {

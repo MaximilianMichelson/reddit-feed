@@ -10,7 +10,7 @@ import { ReadCommentsService } from '../services/read-comments.service';
 })
 export class SelectedRowDialogComponent {
     constructor(
-        @Inject(MAT_DIALOG_DATA) private _data: {
+        @Inject(MAT_DIALOG_DATA) private readonly _data: {
             created: Date;
             comments: number;
             author: string;
@@ -21,7 +21,7 @@ export class SelectedRowDialogComponent {
             url: string;
             id: string;
         },
-        private _readCommentsService: ReadCommentsService
+        private readonly _readCommentsService: ReadCommentsService
     ) { }
 
     get data() {
@@ -33,7 +33,7 @@ export class SelectedRowDialogComponent {
     }
 
     onReadComments(id: string) {
-        this._readCommentsService.readComments(id)
+        this._readCommentsService.readComments(id);
     }
 
 

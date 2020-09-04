@@ -8,7 +8,7 @@ import { MAT_DIALOG_DATA, MatTableDataSource } from '@angular/material';
 export class ReadCommentsDialogComponent implements OnInit {
 
     constructor(
-        @Inject(MAT_DIALOG_DATA) private injectedData: {
+        @Inject(MAT_DIALOG_DATA) private readonly injectedData: {
             comments: any;
             commentURL: string;
         }
@@ -17,15 +17,14 @@ export class ReadCommentsDialogComponent implements OnInit {
     private _struct: any;
     public something: Item[] = [];
     private _commentURL: string;
-    newArr = []
+    newArr = [];
     ngOnInit(): void {
 
         if (this.injectedData.comments.data) {
             this._struct = {
                 comments: this.injectedData.comments.data
             };
-        }
-        else {
+        } else {
             this._struct = {
                 comments: this.injectedData.comments
             };
@@ -43,12 +42,12 @@ export class ReadCommentsDialogComponent implements OnInit {
         }
 
         this.something.forEach((item, index) => {
-            if (this.newArr.findIndex(i => i.author == item.author) === -1) {
-                this.newArr.push(item)
+            if (this.newArr.findIndex(i => i.author === item.author) === -1) {
+                this.newArr.push(item);
             }
 
         });
-        this.something = this.newArr
+        this.something = this.newArr;
     }
 
 
@@ -61,8 +60,7 @@ export class ReadCommentsDialogComponent implements OnInit {
                     text: this.printReply('', comment)
                 }
             );
-        }
-        else {
+        } else {
             for (const reply of this.getReplies(comment)) {
                 this.printReply('', reply);
                 this.something.push(
@@ -85,11 +83,11 @@ export class ReadCommentsDialogComponent implements OnInit {
         return comment.data.replies.data.children;
     }
 
-    printReply(depth, reply): string {
+    printReply(depth: string, reply: any): string {
         return depth + reply.data.body;
     }
 
-    getAuthor(depth, reply): string {
+    getAuthor(depth: string, reply: any): string {
         return depth + reply.data.author;
     }
 
