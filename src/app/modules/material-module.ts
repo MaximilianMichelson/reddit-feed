@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import {
   MatButtonModule, MatDialogModule, MatInputModule, MatListModule, MatPaginatorModule, MatTableModule,
-  MatToolbarModule, MAT_FORM_FIELD_DEFAULT_OPTIONS, MatSnackBarModule
+  MatToolbarModule, MAT_FORM_FIELD_DEFAULT_OPTIONS, MatSnackBarModule, MatProgressSpinnerModule
 } from '@angular/material';
 
 
@@ -14,7 +14,8 @@ import {
     MatPaginatorModule,
     MatTableModule,
     MatToolbarModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    MatProgressSpinnerModule
   ],
   providers: [
     { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { appearance: 'fill' } },

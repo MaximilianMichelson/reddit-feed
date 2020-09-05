@@ -1,4 +1,11 @@
-<div class="background">
+<div *ngIf="!doneLoading">
+    <mat-spinner></mat-spinner>
+    <p>
+        Loading...
+    </p>
+</div>
+
+<div class="background" *ngIf=doneLoading>
 
     <div class="details">
         <h1> Title: {{title}}</h1>
@@ -12,7 +19,14 @@
     <div>
         <ng-container *ngIf="url; then hasUrl; else noUrl"></ng-container>
         <ng-template #hasUrl>
-            <a href="{{url}}"><img class="img" src="{{url}}" (error)="imageNotFound($event)" /></a>
+            <div *ngIf="videoUrl" class="video">
+                <video controls>
+                    <source [src]="videoUrl" />
+                    Browser not supported
+                </video>
+            </div>
+
+            <a [href]="url"><img class="img" [src]="url" alt="image" (error)="imageNotFound($event)" /></a>
         </ng-template>
         <ng-template #noUrl>
             This post has no image

@@ -7,6 +7,7 @@ import { SelectedRowDialogComponent } from './selected-row-dialog/selected-row-d
 import { FormGroup, FormControl } from '@angular/forms';
 import { ReadCommentsService } from './services/read-comments.service';
 import { GlobalService } from './services/global.service';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-root',
@@ -76,7 +77,7 @@ export class RedditTableComponent implements OnInit {
 
 
   getFeed(): void {
-    this._httpService.getRequest(this._globals.subredditBaseURL + `${this._globals.currentSubreddit}.json?limit=1000`)
+    this._httpService.getRequest(environment.SUBREDDIT_BASE_URL + `${this._globals.currentSubreddit}.json?limit=1000`)
       .pipe(
         map(
           (listing: RedditListing): RedditItem[] => {
@@ -112,8 +113,8 @@ export class RedditTableComponent implements OnInit {
     return this._globals.timeAgo(unixTimestamp * 1000);
   }
 
-  imageNotFound(event: any): void {
-    event.target.src = "../assets/not_found.jpg";
+  imageNotFound(event: { target: { src: string; }; }): void {
+    event.target.src = '../assets/not_found.jpg';
   }
 
 }

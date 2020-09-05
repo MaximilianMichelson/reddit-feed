@@ -1,13 +1,17 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material';
 import { ReadCommentsService } from '../services/read-comments.service';
+import { HttpService } from '../http-service/http-service';
 
 @Component({
     selector: 'app-selected-row-dialog-component',
     templateUrl: './selected-row-dialog.component.html',
     styleUrls: ['./selected-row-dialog.component.css']
 })
-export class SelectedRowDialogComponent {
+export class SelectedRowDialogComponent implements OnInit {
+
+    doneLoading: boolean;
+
     constructor(
         @Inject(MAT_DIALOG_DATA) private readonly _data: {
             created: Date;
@@ -19,9 +23,15 @@ export class SelectedRowDialogComponent {
             permalink: string;
             url: string;
             id: string;
+            videoUrl?: string
         },
-        private readonly _readCommentsService: ReadCommentsService
+        private readonly _readCommentsService: ReadCommentsService,
+        private readonly _httpService: HttpService
     ) { }
+    async ngOnInit(): Promise<void> {
+        this.doneLoading = false;
+        await this.setVideoUrl();
+    }
 
     get id(): string {
         return this._data.id;
@@ -59,11 +69,35 @@ export class SelectedRowDialogComponent {
         return this._data.created;
     }
 
+    get videoUrl(): string {
+        return this._data.videoUrl;
+    }
+
     onReadComments(id: string): void {
         this._readCommentsService.readComments(id);
     }
 
-    imageNotFound(event: any): void {
-        event.target.src = "../../assets/not_found.jpg";
+    imageNotFound(event: { target: { src: string; }; }): void {
+        event.target.src = '../../assets/not_found.jpg';
+    }
+
+    async setVideoUrl(): Promise<void> {
+        const result = await this._httpService.getRequest(`https://cors-anywhere.herokuapp.com/${this._data.url}`)
+            .toPromise()
+            .then(
+                null,
+                onrejected => { return onrejected.error.text }
+            );
+
+        const htmlDoc = new DOMParser().parseFromString(result, 'text/html');
+        const ogUrl = htmlDoc.querySelector("meta[property='og:url']");
+
+        ogUrl ? await this._httpService.getRequest(`${ogUrl.getAttribute('content')}.json`)
+            .toPromise()
+            .then((data: any) => {
+                this._data.videoUrl = data[0].data.children[0].data.secure_media.reddit_video.fallback_url;
+            })
+            .catch(() => void 0) : void 0;
+        this.doneLoading = true
     }
 }

@@ -13,7 +13,7 @@ export class ReadCommentsDialogComponent implements OnInit {
 
     constructor(
         @Inject(MAT_DIALOG_DATA) private readonly injectedData: {
-            comments: { data?: any };
+            comments: { data: any };
             commentURL: string;
         },
         private readonly _globals: GlobalService
@@ -21,8 +21,9 @@ export class ReadCommentsDialogComponent implements OnInit {
 
     ngOnInit(): void {
 
-        this._commentsAndAllNestedComments = [];
         const comments = (this.injectedData.comments.data) ? this.injectedData.comments.data : this.injectedData.comments;
+        
+        this._commentsAndAllNestedComments = [];
         const noDuplicatesArray: Comment[] = [];
 
         // Get All Comments
@@ -51,7 +52,7 @@ export class ReadCommentsDialogComponent implements OnInit {
     }
 
 
-    private findReplies(depth: string, comment: any): void {
+    private findReplies(depth: string, comment: Reply): void {
         if (!this.hasReplies(comment)) {
             this.printReply(depth, comment);
             this._commentsAndAllNestedComments.push(
@@ -78,11 +79,11 @@ export class ReadCommentsDialogComponent implements OnInit {
         }
     }
 
-    private hasReplies(comment: any): boolean {
-        return comment.data.replies;
+    private hasReplies(comment: Reply): boolean {
+        return comment.data.replies ? true : false;
     }
 
-    private getReplies(comment: any): any[] {
+    private getReplies(comment: Reply): Reply[] {
         return comment.data.replies.data.children;
     }
 
@@ -131,11 +132,17 @@ interface Comment {
     };
 }
 
-interface Reply {
+export interface Reply {
     data: {
         author: string,
         body: string,
         score: number,
-        created: string
+        created: string,
+        created_utc: number,
+        replies: {
+            data: {
+                children: Reply[]
+            };
+        };
     };
 }
