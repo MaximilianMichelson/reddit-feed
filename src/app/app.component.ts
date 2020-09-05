@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, ViewChild, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { MatTableDataSource, MatPaginator, MatSnackBar } from '@angular/material';
 import { HttpService } from './http-service/http-service';
 import { map } from 'rxjs/operators';
@@ -8,6 +8,7 @@ import { FormGroup, FormControl } from '@angular/forms';
 import { ReadCommentsService } from './services/read-comments.service';
 import { GlobalService } from './services/global.service';
 import { environment } from 'src/environments/environment';
+import { detectChanges } from '@angular/core/src/render3';
 
 @Component({
   selector: 'app-root',
@@ -22,9 +23,12 @@ export class RedditTableComponent implements OnInit {
     private readonly _dialog: MatDialog,
     private readonly _readCommentsService: ReadCommentsService,
     private readonly _globals: GlobalService,
-    private readonly _snackBar: MatSnackBar
+    private readonly _snackBar: MatSnackBar,
+    private cd: ChangeDetectorRef
   ) { }
 
+  before;
+  after;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
@@ -66,18 +70,37 @@ export class RedditTableComponent implements OnInit {
     this._dataSource = new MatTableDataSource();
 
     this._globals.currentSubreddit = this.subredditFormGroup.controls.subreddit.value;
+
     this._dataSource.paginator = this.paginator;
-    this._dataSource.paginator._intl.itemsPerPageLabel = 'limit';
+    this._dataSource.paginator._intl.itemsPerPageLabel = 'Page Size';
     this._dataSource.paginator._intl.nextPageLabel = 'Next';
     this._dataSource.paginator._intl.previousPageLabel = 'Previous';
+    (this.paginator.hasNextPage as any) = () => { return true };
 
+
+    console.log(this.paginator)
     this.getFeed();
   }
 
+  paginatorPageChange() {
+
+    if (this.paginator.pageIndex + 1 > this.paginator.length) {
+      console.log("lol")
+      this.getFeed({ limit: 3, after: this.after });
+      this.paginator.pageIndex = 0;
+
+    }
+  }
 
 
-  getFeed(): void {
-    this._httpService.getRequest(environment.SUBREDDIT_BASE_URL + `${this._globals.currentSubreddit}.json?limit=1000`)
+  getFeed(
+    obj: {
+      limit: number,
+      before?: string,
+      after?: string,
+      firstTime?:boolean
+    } = { limit: 3-1}): void {
+    this._httpService.getRequest(environment.SUBREDDIT_BASE_URL + `${this._globals.currentSubreddit}.json?limit=${obj.limit}&before=${obj.before}&after=${obj.after}`)
       .pipe(
         map(
           (listing: RedditListing): RedditItem[] => {
@@ -85,6 +108,10 @@ export class RedditTableComponent implements OnInit {
               element.data.created = new Date(Number(element.data.created) * 1000).toLocaleDateString('sv-SV');
               element.data.permalink = `https://reddit.com/${element.data.permalink}`;
             });
+
+            this.before = this.after;
+            this.after = listing.data.after;
+
             return listing.data.children;
           }
         )
@@ -122,6 +149,8 @@ export class RedditTableComponent implements OnInit {
 interface RedditListing {
   data: {
     children: RedditItem[];
+    after: string;
+    before: string;
   };
 }
 

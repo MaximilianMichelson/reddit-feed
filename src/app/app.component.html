@@ -79,5 +79,6 @@
   <tr mat-row *matRowDef="let row; columns: displayedColumns; let i = index;" (click)="onRowSelected(row.data)"> </tr>
 
 </mat-table>
-<mat-paginator style="background-color: #FF5252; color: white;" [pageSize]="10" [pageSizeOptions]="[5, 10, 25]">
+<mat-paginator style="background-color: #FF5252; color: white;" [showFirstLastButtons]="true" [pageSize]="1" [pageSizeOptions]="[5, 10, 25]" (page)="paginatorPageChange()">
+<button mat-raised-button>Next</button>
 </mat-paginator>
