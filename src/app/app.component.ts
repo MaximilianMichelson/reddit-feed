@@ -58,7 +58,7 @@ export class RedditTableComponent implements OnInit {
 
   onSubredditChange(newSubreddit: string): void {
     this._globals.currentSubreddit = newSubreddit.toLowerCase();
-    this.getFeed();
+    this.getFeed(null);
   }
 
   ngOnInit(): void {
@@ -75,32 +75,43 @@ export class RedditTableComponent implements OnInit {
     this._dataSource.paginator._intl.itemsPerPageLabel = 'Page Size';
     this._dataSource.paginator._intl.nextPageLabel = 'Next';
     this._dataSource.paginator._intl.previousPageLabel = 'Previous';
+    this._dataSource.paginator.pageSize = 5;
+    this._dataSource.paginator.length = 10;
+
+
+    this._dataSource.paginator.pageSizeOptions = [10, 25, 100];
     (this.paginator.hasNextPage as any) = () => { return true };
+    (this.paginator.hasPreviousPage as any) = () => { return true };
+    this.paginator['prev'] = null
 
 
-    console.log(this.paginator)
-    this.getFeed();
+    this.getFeed(null);
   }
 
-  paginatorPageChange() {
+  paginatorPageChange(event) {
+    console.log(event)
 
-    if (this.paginator.pageIndex + 1 > this.paginator.length) {
-      console.log("lol")
-      this.getFeed({ limit: 3, after: this.after });
+    if(event.pageIndex > event.previousPageIndex){
+      this.paginator['prev'] = this.paginator.pageIndex-1
+      console.log(this.paginator['prev'])
+    }
+ 
+
+    if ((event.pageIndex + 1) * this._dataSource.paginator.pageSize > this.paginator.length) {
+
+      this.getFeed(this.after);
       this.paginator.pageIndex = 0;
-
+    }
+    else if ( event.pageIndex === event.previousPageIndex) {
+      console.log("NEGATIVE")
+      this.getFeed(null,this.before);
+      this.paginator.pageIndex = this.paginator['prev'];
     }
   }
 
 
-  getFeed(
-    obj: {
-      limit: number,
-      before?: string,
-      after?: string,
-      firstTime?:boolean
-    } = { limit: 3-1}): void {
-    this._httpService.getRequest(environment.SUBREDDIT_BASE_URL + `${this._globals.currentSubreddit}.json?limit=${obj.limit}&before=${obj.before}&after=${obj.after}`)
+  getFeed(after: string,before?): void {
+    this._httpService.getRequest(environment.SUBREDDIT_BASE_URL + `${this._globals.currentSubreddit}.json?limit=${10}&after=${after}&before=${before}`)
       .pipe(
         map(
           (listing: RedditListing): RedditItem[] => {
@@ -112,7 +123,7 @@ export class RedditTableComponent implements OnInit {
             this.before = this.after;
             this.after = listing.data.after;
 
-            return listing.data.children;
+            return listing.data.children.filter(v => v.data.name !== 't3_imcx2p');
           }
         )
       )
@@ -158,6 +169,7 @@ interface RedditItem {
   data: {
     created: string;
     permalink: string;
+    name: string;
   };
 }
 
