@@ -10,6 +10,7 @@ import { GlobalService } from './services/global.service';
 import { environment } from 'src/environments/environment';
 import { detectChanges } from '@angular/core/src/render3';
 
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -27,8 +28,9 @@ export class RedditTableComponent implements OnInit {
     private cd: ChangeDetectorRef
   ) { }
 
-  before;
-  after;
+  last;
+  current;
+  next;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
@@ -75,43 +77,46 @@ export class RedditTableComponent implements OnInit {
     this._dataSource.paginator._intl.itemsPerPageLabel = 'Page Size';
     this._dataSource.paginator._intl.nextPageLabel = 'Next';
     this._dataSource.paginator._intl.previousPageLabel = 'Previous';
-    this._dataSource.paginator.pageSize = 5;
-    this._dataSource.paginator.length = 10;
+    this._dataSource.paginator.pageSize = 10;
 
 
-    this._dataSource.paginator.pageSizeOptions = [10, 25, 100];
+
+    this._dataSource.paginator.pageSizeOptions = [5, 10, 25];
     (this.paginator.hasNextPage as any) = () => { return true };
     (this.paginator.hasPreviousPage as any) = () => { return true };
     this.paginator['prev'] = null
 
 
-    this.getFeed(null);
+    this.getFeed();
   }
 
   paginatorPageChange(event) {
     console.log(event)
-
-    if(event.pageIndex > event.previousPageIndex){
-      this.paginator['prev'] = this.paginator.pageIndex-1
-      console.log(this.paginator['prev'])
+    if (event.pageIndex === event.previousPageIndex) {
+      this.getFeed(undefined, this.last);
+      this._dataSource.paginator.pageIndex = this.paginator['prev'];
     }
- 
-
-    if ((event.pageIndex + 1) * this._dataSource.paginator.pageSize > this.paginator.length) {
-
-      this.getFeed(this.after);
-      this.paginator.pageIndex = 0;
+    else if ((event.pageIndex + 1) * this._dataSource.paginator.pageSize >= this._dataSource.paginator.length) {
+      this.getFeed(this.next);
+      this._dataSource.paginator.pageIndex = 0;
     }
-    else if ( event.pageIndex === event.previousPageIndex) {
-      console.log("NEGATIVE")
-      this.getFeed(null,this.before);
-      this.paginator.pageIndex = this.paginator['prev'];
-    }
+
   }
 
 
-  getFeed(after: string,before?): void {
-    this._httpService.getRequest(environment.SUBREDDIT_BASE_URL + `${this._globals.currentSubreddit}.json?limit=${10}&after=${after}&before=${before}`)
+  getFeed(next?: string, last?): void {
+    let q
+    if (next) {
+      q = environment.SUBREDDIT_BASE_URL + `${this._globals.currentSubreddit}.json?limit=${this._dataSource.paginator.pageSize}&after=${this.next}`
+    }
+    else if (last) {
+      q = environment.SUBREDDIT_BASE_URL + `${this._globals.currentSubreddit}.json?limit=${this._dataSource.paginator.pageSize}&before=${this.current}`
+    }
+    else {
+      q = environment.SUBREDDIT_BASE_URL + `${this._globals.currentSubreddit}.json?limit=${this._dataSource.paginator.pageSize}`
+    }
+
+    this._httpService.getRequest(q)
       .pipe(
         map(
           (listing: RedditListing): RedditItem[] => {
@@ -120,10 +125,47 @@ export class RedditTableComponent implements OnInit {
               element.data.permalink = `https://reddit.com/${element.data.permalink}`;
             });
 
-            this.before = this.after;
-            this.after = listing.data.after;
+            if (next) {
+              console.log("NEXT")
 
-            return listing.data.children.filter(v => v.data.name !== 't3_imcx2p');
+              this.last = this.current;
+              listing.data.before = this.last
+
+              this.current = this.next;
+              listing.data.current = this.current;
+
+              this.next = listing.data.after;
+              listing.data.after = this.next
+            }
+            else if (last) {
+              console.log("LAST")
+
+              this.next = this.current;
+              listing.data.after = this.next
+
+              this.current = this.last;
+              listing.data.current = this.current;
+
+
+            
+            } else {
+              this.last = listing.data.after
+              listing.data.before = this.last
+
+              this.current = listing.data.after
+              listing.data.current = this.current
+
+              this.next = listing.data.after
+              listing.data.after = this.next
+            }
+
+
+            console.log(listing)
+            console.log("last was " + this.last)
+            console.log("current is " + this.current)
+            console.log("next is " + this.next)
+
+            return listing.data.children.filter(v => v.data.stickied === false);
           }
         )
       )
@@ -162,6 +204,7 @@ interface RedditListing {
     children: RedditItem[];
     after: string;
     before: string;
+    current: string;
   };
 }
 
@@ -169,7 +212,7 @@ interface RedditItem {
   data: {
     created: string;
     permalink: string;
-    name: string;
+    stickied: boolean;
   };
 }
 
