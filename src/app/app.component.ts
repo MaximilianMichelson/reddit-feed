@@ -28,7 +28,11 @@ export class RedditTableComponent implements OnInit {
   last;
   current;
   next;
- 
+  arrayOfValue: {
+    before: string,
+    after: string
+  }[] = []
+
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
   private _displayedColumns: string[];
@@ -90,11 +94,34 @@ export class RedditTableComponent implements OnInit {
 
   paginatorPageChange(event: { pageIndex: number; previousPageIndex: number; }) {
     if (event.pageIndex === event.previousPageIndex) {
-      this.getFeed(undefined, this.last);
+
+      const last = this.arrayOfValue.pop();
+      this.getFeed(undefined, last.before);
+
       this._dataSource.paginator.pageIndex = 3;
+
     } else if (event.pageIndex * this.pageSize > this.length) {
-      this.getFeed(this.next);
+
+
+      let before = null
+      let after = null
+
+      if(this.arrayOfValue.length > 0){
+        before = this.arrayOfValue[this.arrayOfValue.length - 1].after
+      }
+
+
+      after = this.next
+      console.log(after)
+
+      this.arrayOfValue.push({
+        before,
+        after
+      })
+
+      this.getFeed(after);
       this._dataSource.paginator.pageIndex = 0;
+
     }
 
   }
@@ -102,15 +129,13 @@ export class RedditTableComponent implements OnInit {
 
   getFeed(next?: string, last?): void {
 
-
-    console.log(this._dataSource.paginator.length)
     let q: string;
     if (next) {
       q = environment.SUBREDDIT_BASE_URL +
-        `${this._globals.currentSubreddit}.json?limit=${this._dataSource.paginator.length}&after=${this.next}`;
+        `${this._globals.currentSubreddit}.json?limit=${this._dataSource.paginator.length}&after=${next}`;
     } else if (last) {
       q = environment.SUBREDDIT_BASE_URL +
-        `${this._globals.currentSubreddit}.json?limit=${this._dataSource.paginator.length}&before=${this.current}`;
+        `${this._globals.currentSubreddit}.json?limit=${this._dataSource.paginator.length}&before=${last}`;
     } else {
       q = environment.SUBREDDIT_BASE_URL +
         `${this._globals.currentSubreddit}.json?limit=${this._dataSource.paginator.pageSize}`;
@@ -125,34 +150,12 @@ export class RedditTableComponent implements OnInit {
               element.data.permalink = `https://reddit.com/${element.data.permalink}`;
             });
 
-            if (next) {
-              this.last = this.current;
-              listing.data.before = this.last;
-
-              this.current = this.next;
-              listing.data.current = this.current;
-
-              this.next = listing.data.after;
-              listing.data.after = this.next;
-            } else if (last) {
-              this.next = this.current;
-              listing.data.after = this.next;
-
-              this.current = this.last;
-              listing.data.current = this.current;
-            } else {
-              this.last = listing.data.after;
-              listing.data.before = this.last;
-
-              this.current = listing.data.after;
-              listing.data.current = this.current;
-
-              this.next = listing.data.after;
-              listing.data.after = this.next;
-            }
-
             const filtered = listing.data.children.filter(v => v.data.stickied === false);
 
+            this.next = listing.data.after
+
+
+            console.log(this.arrayOfValue)
             return filtered;
           }
         )
