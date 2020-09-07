@@ -93,20 +93,36 @@ export class RedditTableComponent implements OnInit {
   }
 
   paginatorPageChange(event: { pageIndex: number; previousPageIndex: number; }) {
+
+
+
     if (event.pageIndex === event.previousPageIndex) {
+      if (this.arrayOfValue.length === 0) {
+        return;
+      }
+
+      if (this.arrayOfValue.length === 1) {
+        this.arrayOfValue.pop();
+        this.getFeed(null, null, true);
+        this._dataSource.paginator.pageIndex = 3;
+        return;
+      }
+
+  
+
 
       const last = this.arrayOfValue.pop();
-      this.getFeed(undefined, last.before);
+      this.getFeed(undefined, last.after);
 
       this._dataSource.paginator.pageIndex = 3;
 
-    } else if (event.pageIndex * this.pageSize > this.length) {
+    } else if (event.pageIndex * this._dataSource.paginator.pageSize >= this.length) {
 
 
       let before = null
       let after = null
 
-      if(this.arrayOfValue.length > 0){
+      if (this.arrayOfValue.length > 0) {
         before = this.arrayOfValue[this.arrayOfValue.length - 1].after
       }
 
@@ -127,7 +143,7 @@ export class RedditTableComponent implements OnInit {
   }
 
 
-  getFeed(next?: string, last?): void {
+  getFeed(next?: string, last?, third?): void {
 
     let q: string;
     if (next) {
@@ -136,6 +152,9 @@ export class RedditTableComponent implements OnInit {
     } else if (last) {
       q = environment.SUBREDDIT_BASE_URL +
         `${this._globals.currentSubreddit}.json?limit=${this._dataSource.paginator.length}&before=${last}`;
+    } else if (third) {
+      q = environment.SUBREDDIT_BASE_URL +
+        `${this._globals.currentSubreddit}.json?limit=${this._dataSource.paginator.length}`;
     } else {
       q = environment.SUBREDDIT_BASE_URL +
         `${this._globals.currentSubreddit}.json?limit=${this._dataSource.paginator.pageSize}`;
