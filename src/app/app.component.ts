@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ChangeDetectionStrategy, ChangeDetectorRef, Output, EventEmitter } from '@angular/core';
 import { MatTableDataSource, MatPaginator, MatSnackBar } from '@angular/material';
 import { HttpService } from './http-service/http-service';
 import { map } from 'rxjs/operators';
@@ -28,6 +28,7 @@ export class RedditTableComponent implements OnInit {
   last;
   current;
   next;
+  pageSize = 10;
   arrayOfValue: {
     before: string,
     after: string
@@ -40,8 +41,16 @@ export class RedditTableComponent implements OnInit {
   private _subredditFormGroup: FormGroup;
 
   length = 25;
-  pageSize = 10;
   pageSizeOptions: number[] = [5, 10, 25];
+
+
+  changedPageSize(newPageSize: number): boolean {
+    if (newPageSize !== this.pageSize) {
+      this.pageSize = newPageSize;
+      return true;
+    }
+    return false;
+  }
 
   onRowSelected(row: TableRow): void {
     this._dialog.open(SelectedRowDialogComponent, {
@@ -92,8 +101,19 @@ export class RedditTableComponent implements OnInit {
     this.getFeed();
   }
 
-  paginatorPageChange(event: { pageIndex: number; previousPageIndex: number; }) {
+  paginatorPageChange(event: {
+    previousPageIndex: number,
+    pageIndex: number,
+    pageSize: number,
+    length: number
+  }) {
 
+
+    if (this.changedPageSize(event.pageSize)) {
+      console.log("page size changed")
+      this.getFeed(this.arrayOfValue[this.arrayOfValue.length - 1].after, null, null, event.pageSize);
+      return;
+    }
 
 
     if (event.pageIndex === event.previousPageIndex) {
@@ -108,7 +128,7 @@ export class RedditTableComponent implements OnInit {
         return;
       }
 
-  
+
 
 
       const last = this.arrayOfValue.pop();
@@ -143,7 +163,7 @@ export class RedditTableComponent implements OnInit {
   }
 
 
-  getFeed(next?: string, last?, third?): void {
+  getFeed(next?: string, last?, third?, limit?): void {
 
     let q: string;
     if (next) {
@@ -155,7 +175,11 @@ export class RedditTableComponent implements OnInit {
     } else if (third) {
       q = environment.SUBREDDIT_BASE_URL +
         `${this._globals.currentSubreddit}.json?limit=${this._dataSource.paginator.length}`;
-    } else {
+    } else if (limit) {
+      q = environment.SUBREDDIT_BASE_URL +
+        `${this._globals.currentSubreddit}.json?limit=${limit}&after=${next}`;
+    }
+    else {
       q = environment.SUBREDDIT_BASE_URL +
         `${this._globals.currentSubreddit}.json?limit=${this._dataSource.paginator.pageSize}`;
     }
