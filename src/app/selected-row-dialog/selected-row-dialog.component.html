@@ -22,6 +22,7 @@
             <div *ngIf="videoUrl" class="video">
                 <video controls>
                     <source [src]="videoUrl" />
+                    <track label="English" kind="captions" srclang="en" src="resources/myvideo-en.vtt" default>
                     Browser not supported
                 </video>
             </div>
