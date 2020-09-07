@@ -79,7 +79,7 @@ export class RedditTableComponent implements OnInit {
 
   onSubredditChange(newSubreddit: string): void {
     this._globals.currentSubreddit = newSubreddit.toLowerCase();
-    this.getFeed(null);
+    this.getFeed();
   }
 
   ngOnInit(): void {
@@ -175,15 +175,12 @@ export class RedditTableComponent implements OnInit {
   }
 
 
-  getFeed(next?: string, last?): void {
+  getFeed(next?: string): void {
 
     let q: string;
     if (next) {
       q = environment.SUBREDDIT_BASE_URL +
         `${this._globals.currentSubreddit}.json?limit=${this._dataSource.paginator.length}&after=${next}`;
-    } else if (last) {
-      q = environment.SUBREDDIT_BASE_URL +
-        `${this._globals.currentSubreddit}.json?limit=${this._dataSource.paginator.length}&before=${last}`;
     }
     else {
       q = environment.SUBREDDIT_BASE_URL +
