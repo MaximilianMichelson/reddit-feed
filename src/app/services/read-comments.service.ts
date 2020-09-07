@@ -3,7 +3,7 @@ import { HttpService } from '../http-service/http-service';
 import { ReadCommentsDialogComponent, Reply } from '../read-comments-dialog/read-comments-dialog.component';
 import { MatDialog, MatSnackBar } from '@angular/material';
 import { GlobalService } from './global.service';
-import { environment } from "../../environments/environment";
+import { environment } from '../../environments/environment';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -25,11 +25,10 @@ export class ReadCommentsService {
   readComments(id: string): void {
     this._httpService.getRequest(`${environment.SUBREDDIT_BASE_URL}${this._global.currentSubreddit}/comments/${id}.json`)
       .subscribe((comments: Comment[]) => {
-        console.log(comments[1].data.children.length)
         if (comments[1].data.children.length === 0) {
           this._snackBar.open('This post has no comments', 'OK', {
             duration: 5000
-          })
+          });
           return;
         }
         this._dialog.open(ReadCommentsDialogComponent, {
@@ -45,7 +44,7 @@ export class ReadCommentsService {
   }
 
    getSecureMedia(url: string): Observable<unknown> {
-     return this._httpService.getRequest(url)
+     return this._httpService.getRequest(url);
   }
 }
 

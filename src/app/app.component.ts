@@ -8,8 +8,6 @@ import { FormGroup, FormControl } from '@angular/forms';
 import { ReadCommentsService } from './services/read-comments.service';
 import { GlobalService } from './services/global.service';
 import { environment } from 'src/environments/environment';
-import { detectChanges } from '@angular/core/src/render3';
-
 
 @Component({
   selector: 'app-root',
@@ -24,19 +22,22 @@ export class RedditTableComponent implements OnInit {
     private readonly _dialog: MatDialog,
     private readonly _readCommentsService: ReadCommentsService,
     private readonly _globals: GlobalService,
-    private readonly _snackBar: MatSnackBar,
-    private cd: ChangeDetectorRef
+    private readonly _snackBar: MatSnackBar
   ) { }
 
   last;
   current;
   next;
-
+ 
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
   private _displayedColumns: string[];
   private _dataSource: MatTableDataSource<RedditItem>;
   private _subredditFormGroup: FormGroup;
+
+  length = 25;
+  pageSize = 10;
+  pageSizeOptions: number[] = [5, 10, 25];
 
   onRowSelected(row: TableRow): void {
     this._dialog.open(SelectedRowDialogComponent, {
@@ -77,26 +78,21 @@ export class RedditTableComponent implements OnInit {
     this._dataSource.paginator._intl.itemsPerPageLabel = 'Page Size';
     this._dataSource.paginator._intl.nextPageLabel = 'Next';
     this._dataSource.paginator._intl.previousPageLabel = 'Previous';
-    this._dataSource.paginator.pageSize = 10;
 
 
 
-    this._dataSource.paginator.pageSizeOptions = [5, 10, 25];
-    (this.paginator.hasNextPage as any) = () => { return true };
-    (this.paginator.hasPreviousPage as any) = () => { return true };
-    this.paginator['prev'] = null
-
+    (this.paginator.hasNextPage as any) = () => true;
+    (this.paginator.hasPreviousPage as any) = () => true;
+    this.paginator['prev'] = null;
 
     this.getFeed();
   }
 
-  paginatorPageChange(event) {
-    console.log(event)
+  paginatorPageChange(event: { pageIndex: number; previousPageIndex: number; }) {
     if (event.pageIndex === event.previousPageIndex) {
       this.getFeed(undefined, this.last);
-      this._dataSource.paginator.pageIndex = this.paginator['prev'];
-    }
-    else if ((event.pageIndex + 1) * this._dataSource.paginator.pageSize >= this._dataSource.paginator.length) {
+      this._dataSource.paginator.pageIndex = 3;
+    } else if (event.pageIndex * this.pageSize > this.length) {
       this.getFeed(this.next);
       this._dataSource.paginator.pageIndex = 0;
     }
@@ -105,15 +101,19 @@ export class RedditTableComponent implements OnInit {
 
 
   getFeed(next?: string, last?): void {
-    let q
+
+
+    console.log(this._dataSource.paginator.length)
+    let q: string;
     if (next) {
-      q = environment.SUBREDDIT_BASE_URL + `${this._globals.currentSubreddit}.json?limit=${this._dataSource.paginator.pageSize}&after=${this.next}`
-    }
-    else if (last) {
-      q = environment.SUBREDDIT_BASE_URL + `${this._globals.currentSubreddit}.json?limit=${this._dataSource.paginator.pageSize}&before=${this.current}`
-    }
-    else {
-      q = environment.SUBREDDIT_BASE_URL + `${this._globals.currentSubreddit}.json?limit=${this._dataSource.paginator.pageSize}`
+      q = environment.SUBREDDIT_BASE_URL +
+        `${this._globals.currentSubreddit}.json?limit=${this._dataSource.paginator.length}&after=${this.next}`;
+    } else if (last) {
+      q = environment.SUBREDDIT_BASE_URL +
+        `${this._globals.currentSubreddit}.json?limit=${this._dataSource.paginator.length}&before=${this.current}`;
+    } else {
+      q = environment.SUBREDDIT_BASE_URL +
+        `${this._globals.currentSubreddit}.json?limit=${this._dataSource.paginator.pageSize}`;
     }
 
     this._httpService.getRequest(q)
@@ -126,51 +126,42 @@ export class RedditTableComponent implements OnInit {
             });
 
             if (next) {
-              console.log("NEXT")
-
               this.last = this.current;
-              listing.data.before = this.last
+              listing.data.before = this.last;
 
               this.current = this.next;
               listing.data.current = this.current;
 
               this.next = listing.data.after;
-              listing.data.after = this.next
-            }
-            else if (last) {
-              console.log("LAST")
-
+              listing.data.after = this.next;
+            } else if (last) {
               this.next = this.current;
-              listing.data.after = this.next
+              listing.data.after = this.next;
 
               this.current = this.last;
               listing.data.current = this.current;
-
-
-            
             } else {
-              this.last = listing.data.after
-              listing.data.before = this.last
+              this.last = listing.data.after;
+              listing.data.before = this.last;
 
-              this.current = listing.data.after
-              listing.data.current = this.current
+              this.current = listing.data.after;
+              listing.data.current = this.current;
 
-              this.next = listing.data.after
-              listing.data.after = this.next
+              this.next = listing.data.after;
+              listing.data.after = this.next;
             }
 
+            const filtered = listing.data.children.filter(v => v.data.stickied === false);
 
-            console.log(listing)
-            console.log("last was " + this.last)
-            console.log("current is " + this.current)
-            console.log("next is " + this.next)
-
-            return listing.data.children.filter(v => v.data.stickied === false);
+            return filtered;
           }
         )
       )
       .subscribe(
-        redditItems => this._dataSource.data = redditItems,
+        (redditItems) => {
+          this._dataSource.data = redditItems;
+        }
+        ,
         _err => this._snackBar.open('Subreddit does not exist', 'OK', {
           duration: 5000
         })

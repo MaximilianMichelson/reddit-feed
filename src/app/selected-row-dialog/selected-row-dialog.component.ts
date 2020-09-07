@@ -86,18 +86,18 @@ export class SelectedRowDialogComponent implements OnInit {
             .toPromise()
             .then(
                 null,
-                onrejected => { return onrejected.error.text }
+                onrejected => onrejected.error.text
             );
 
         const htmlDoc = new DOMParser().parseFromString(result, 'text/html');
-        const ogUrl = htmlDoc.querySelector("meta[property='og:url']");
+        const ogUrl = htmlDoc.querySelector(`meta[property='og:url']`);
 
         ogUrl ? await this._httpService.getRequest(`${ogUrl.getAttribute('content')}.json`)
             .toPromise()
             .then((data: any) => {
                 this._data.videoUrl = data[0].data.children[0].data.secure_media.reddit_video.fallback_url;
             })
-            .catch(() => void 0) : void 0;
-        this.doneLoading = true
+            .catch(() => void 0) : Error();
+        this.doneLoading = true;
     }
 }

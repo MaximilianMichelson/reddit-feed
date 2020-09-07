@@ -22,7 +22,6 @@ export class ReadCommentsDialogComponent implements OnInit {
     ngOnInit(): void {
 
         const comments = (this.injectedData.comments.data) ? this.injectedData.comments.data : this.injectedData.comments;
-        
         this._commentsAndAllNestedComments = [];
         const noDuplicatesArray: Comment[] = [];
 
@@ -80,7 +79,7 @@ export class ReadCommentsDialogComponent implements OnInit {
     }
 
     private hasReplies(comment: Reply): boolean {
-        return comment.data.replies ? true : false;
+        return Boolean(comment.data.replies);
     }
 
     private getReplies(comment: Reply): Reply[] {
