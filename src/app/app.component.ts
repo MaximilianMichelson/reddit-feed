@@ -118,6 +118,13 @@ export class RedditTableComponent implements OnInit {
       return;
     }
 
+    if ((event.pageSize !== this.pageSize) && this.arrayOfValue.length > 1) {
+      this.pageSize = event.pageSize
+      console.log("page size changed 333")
+      this.getFeed(this.arrayOfValue[this.arrayOfValue.length - 1].after);
+      return;
+    }
+
 
     if (event.pageIndex === event.previousPageIndex) {
       if (this.arrayOfValue.length === 0) {
