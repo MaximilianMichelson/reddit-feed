@@ -9,6 +9,11 @@ import { ReadCommentsService } from './services/read-comments.service';
 import { GlobalService } from './services/global.service';
 import { environment } from 'src/environments/environment';
 
+interface PaginatorNavigationObject {
+  before: string;
+  after: string;
+}
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -16,6 +21,29 @@ import { environment } from 'src/environments/environment';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class RedditTableComponent implements OnInit {
+
+  // The next pagination page (the value "after" recieved from the reddit API) 
+  private _next: string;
+
+  // Paginator default and available page sizes
+  public pageSize: number;
+  public pageSizeOptions: number[];
+
+  // State keeper for paginaton
+  private _arrayOfPaginatorNavigationObjects: PaginatorNavigationObject[];
+
+  @ViewChild(MatPaginator) paginator: MatPaginator;
+
+  // Columns to render in the mat-table
+  private _displayedColumns: string[];
+
+  // Cell data for the mat-table
+  private _dataSource: MatTableDataSource<RedditItem>;
+
+  // Form for subreddit to get posts from
+  private _subredditFormGroup: FormGroup;
+
+  length = 25;
 
   constructor(
     private readonly _httpService: HttpService,
@@ -25,23 +53,6 @@ export class RedditTableComponent implements OnInit {
     private readonly _snackBar: MatSnackBar
   ) { }
 
-  last;
-  current;
-  next;
-  pageSize = 10;
-  arrayOfValue: {
-    before: string,
-    after: string
-  }[] = []
-
-  @ViewChild(MatPaginator) paginator: MatPaginator;
-
-  private _displayedColumns: string[];
-  private _dataSource: MatTableDataSource<RedditItem>;
-  private _subredditFormGroup: FormGroup;
-
-  length = 25;
-  pageSizeOptions: number[] = [5, 10, 25];
 
 
 
@@ -72,6 +83,20 @@ export class RedditTableComponent implements OnInit {
   }
 
   ngOnInit(): void {
+
+    // Paginator default and available page sizes
+    this.pageSize = 10;
+    this.pageSizeOptions = [5, 10, 25];
+
+
+    this._arrayOfPaginatorNavigationObjects = [];
+
+
+
+
+
+
+
     this._subredditFormGroup = new FormGroup({
       subreddit: new FormControl('sweden')
     });
@@ -102,70 +127,45 @@ export class RedditTableComponent implements OnInit {
     length: number
   }) {
 
-    console.log("ARray " + this.arrayOfValue.length)
-
-    if ((event.pageSize !== this.pageSize) && this.arrayOfValue.length === 0) {
+    if ((event.pageSize !== this.pageSize) && this._arrayOfPaginatorNavigationObjects.length === 0) {
       this.pageSize = event.pageSize
-      console.log("page size changed")
-      this.getFeed(null,null,null,25);
+      this.getFeed(null, null, null, 25);
       return
     }
 
-    if ((event.pageSize !== this.pageSize) && this.arrayOfValue.length === 1) {
+    if ((event.pageSize !== this.pageSize) && this._arrayOfPaginatorNavigationObjects.length > 0) {
       this.pageSize = event.pageSize
-      console.log("page size changed 222")
-      this.getFeed(this.arrayOfValue[this.arrayOfValue.length - 1].after);
-      return;
-    }
-
-    if ((event.pageSize !== this.pageSize) && this.arrayOfValue.length > 1) {
-      this.pageSize = event.pageSize
-      console.log("page size changed 333")
-      this.getFeed(this.arrayOfValue[this.arrayOfValue.length - 1].after);
+      this.getFeed(this._arrayOfPaginatorNavigationObjects[this._arrayOfPaginatorNavigationObjects.length - 1].after);
       return;
     }
 
 
     if (event.pageIndex === event.previousPageIndex) {
-      if (this.arrayOfValue.length === 0) {
+
+      // Dont do anything if already on first page
+      if (this._arrayOfPaginatorNavigationObjects.length === 0) {
         return;
       }
 
-      if (this.arrayOfValue.length === 1) {
-        this.arrayOfValue.pop();
-        this.getFeed(null, null, true);
-        this._dataSource.paginator.pageIndex = 3;
-        return;
-      }
-
-
-
-
-      const last = this.arrayOfValue.pop();
-      this.getFeed(undefined, last.after);
-
+      const last = this._arrayOfPaginatorNavigationObjects.pop();
+      this.getFeed(last.before);
       this._dataSource.paginator.pageIndex = 3;
 
     } else if (event.pageIndex * this._dataSource.paginator.pageSize >= this.length) {
 
-
       let before = null
-      let after = null
 
-      if (this.arrayOfValue.length > 0) {
-        before = this.arrayOfValue[this.arrayOfValue.length - 1].after
+      if (this._arrayOfPaginatorNavigationObjects.length > 0) {
+        before = this._arrayOfPaginatorNavigationObjects[this._arrayOfPaginatorNavigationObjects.length - 1].after
       }
 
 
-      after = this.next
-      console.log(after)
-
-      this.arrayOfValue.push({
+      this._arrayOfPaginatorNavigationObjects.push({
         before,
-        after
+        after: this._next
       })
 
-      this.getFeed(after);
+      this.getFeed(this._arrayOfPaginatorNavigationObjects[this._arrayOfPaginatorNavigationObjects.length - 1].after);
       this._dataSource.paginator.pageIndex = 0;
 
     }
@@ -187,7 +187,7 @@ export class RedditTableComponent implements OnInit {
         `${this._globals.currentSubreddit}.json?limit=${this._dataSource.paginator.length}`;
     } else if (limit) {
       q = environment.SUBREDDIT_BASE_URL +
-        `${this._globals.currentSubreddit}.json?limit=${limit}&after=${next}`;
+        `${this._globals.currentSubreddit}.json?limit=${limit}`;
     }
     else {
       q = environment.SUBREDDIT_BASE_URL +
@@ -205,10 +205,8 @@ export class RedditTableComponent implements OnInit {
 
             const filtered = listing.data.children.filter(v => v.data.stickied === false);
 
-            this.next = listing.data.after
+            this._next = listing.data.after;
 
-
-            console.log(this.arrayOfValue)
             return filtered;
           }
         )
@@ -216,8 +214,7 @@ export class RedditTableComponent implements OnInit {
       .subscribe(
         (redditItems) => {
           this._dataSource.data = redditItems;
-        }
-        ,
+        },
         _err => this._snackBar.open('Subreddit does not exist', 'OK', {
           duration: 5000
         })
