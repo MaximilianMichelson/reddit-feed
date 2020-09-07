@@ -110,6 +110,8 @@ export class RedditTableComponent implements OnInit {
     this._dataSource.paginator._intl.itemsPerPageLabel = 'Page Size';
     this._dataSource.paginator._intl.nextPageLabel = 'Next';
     this._dataSource.paginator._intl.previousPageLabel = 'Previous';
+    this._dataSource.paginator.length = 25;
+
 
 
 
@@ -129,7 +131,7 @@ export class RedditTableComponent implements OnInit {
 
     if ((event.pageSize !== this.pageSize) && this._arrayOfPaginatorNavigationObjects.length === 0) {
       this.pageSize = event.pageSize
-      this.getFeed(null, null, null, 25);
+      this.getFeed();
       return
     }
 
@@ -151,7 +153,7 @@ export class RedditTableComponent implements OnInit {
       this.getFeed(last.before);
       this._dataSource.paginator.pageIndex = 3;
 
-    } else if (event.pageIndex * this._dataSource.paginator.pageSize >= this.length) {
+    } else if (event.pageIndex * this._dataSource.paginator.pageSize >= this._dataSource.paginator.length) {
 
       let before = null
 
@@ -173,7 +175,7 @@ export class RedditTableComponent implements OnInit {
   }
 
 
-  getFeed(next?: string, last?, third?, limit?): void {
+  getFeed(next?: string, last?): void {
 
     let q: string;
     if (next) {
@@ -182,16 +184,10 @@ export class RedditTableComponent implements OnInit {
     } else if (last) {
       q = environment.SUBREDDIT_BASE_URL +
         `${this._globals.currentSubreddit}.json?limit=${this._dataSource.paginator.length}&before=${last}`;
-    } else if (third) {
-      q = environment.SUBREDDIT_BASE_URL +
-        `${this._globals.currentSubreddit}.json?limit=${this._dataSource.paginator.length}`;
-    } else if (limit) {
-      q = environment.SUBREDDIT_BASE_URL +
-        `${this._globals.currentSubreddit}.json?limit=${limit}`;
     }
     else {
       q = environment.SUBREDDIT_BASE_URL +
-        `${this._globals.currentSubreddit}.json?limit=${this._dataSource.paginator.pageSize}`;
+        `${this._globals.currentSubreddit}.json?limit=${this._dataSource.paginator.length}`;
     }
 
     this._httpService.getRequest(q)
