@@ -44,13 +44,7 @@ export class RedditTableComponent implements OnInit {
   pageSizeOptions: number[] = [5, 10, 25];
 
 
-  changedPageSize(newPageSize: number): boolean {
-    if (newPageSize !== this.pageSize) {
-      this.pageSize = newPageSize;
-      return true;
-    }
-    return false;
-  }
+
 
   onRowSelected(row: TableRow): void {
     this._dialog.open(SelectedRowDialogComponent, {
@@ -108,10 +102,19 @@ export class RedditTableComponent implements OnInit {
     length: number
   }) {
 
+    console.log("ARray " + this.arrayOfValue.length)
 
-    if (this.changedPageSize(event.pageSize)) {
+    if ((event.pageSize !== this.pageSize) && this.arrayOfValue.length === 0) {
+      this.pageSize = event.pageSize
       console.log("page size changed")
-      this.getFeed(this.arrayOfValue[this.arrayOfValue.length - 1].after, null, null, event.pageSize);
+      this.getFeed(null,null,null,25);
+      return
+    }
+
+    if ((event.pageSize !== this.pageSize) && this.arrayOfValue.length === 1) {
+      this.pageSize = event.pageSize
+      console.log("page size changed 222")
+      this.getFeed(this.arrayOfValue[this.arrayOfValue.length - 1].after);
       return;
     }
 
