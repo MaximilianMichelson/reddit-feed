@@ -68,10 +68,14 @@ export class RedditTableComponent implements OnInit {
     this._dataSource.paginator._intl.previousPageLabel = 'Previous';
     this._dataSource.paginator.length = 25;
 
-    (this.paginator.hasNextPage as any) = () => true;
-    (this.paginator.hasPreviousPage as any) = () => true;
+    this._dataSource.paginator.hasNextPage = () => true;
+    this._dataSource.paginator.hasPreviousPage = () => this.hasPrev();
 
     this.getFeed();
+  }
+
+  hasPrev(): boolean {
+    return this._arrayOfPaginatorNavigationObjects.length > 0 || this._dataSource.paginator.pageIndex > 0 && this._arrayOfPaginatorNavigationObjects.length === 0;
   }
 
   /**
@@ -108,6 +112,8 @@ export class RedditTableComponent implements OnInit {
    * @param newSubreddit Subreddit to get data from
    */
   onSubredditChange(newSubreddit: string): void {
+
+    // Subreddits are in lowercase, transform input before getting the feed
     this._globals.currentSubreddit = newSubreddit.toLowerCase();
     this.getFeed();
   }
@@ -116,25 +122,25 @@ export class RedditTableComponent implements OnInit {
    * Triggered when doing actions on mat-paginator
    * @param event 
    */
-  paginatorPageChange(event: {
-    previousPageIndex: number,
-    pageIndex: number,
-    pageSize: number,
-    length: number
-  }) {
+  paginatorPageChange(event: PaginatorEvent) {
 
-    if ((event.pageSize !== this.pageSize) && this._arrayOfPaginatorNavigationObjects.length === 0) {
+    // Page size changed
+    if (event.pageSize !== this.pageSize) {
+
+      // Save new page size
       this.pageSize = event.pageSize;
-      this.getFeed();
+
+      // Reload the current server side page
+      this._arrayOfPaginatorNavigationObjects.length > 0
+        ?
+        this.getFeed(this._arrayOfPaginatorNavigationObjects[this._arrayOfPaginatorNavigationObjects.length - 1].after)
+        :
+        this.getFeed();
+
       return;
     }
 
-    if ((event.pageSize !== this.pageSize) && this._arrayOfPaginatorNavigationObjects.length > 0) {
-      this.pageSize = event.pageSize;
-      this.getFeed(this._arrayOfPaginatorNavigationObjects[this._arrayOfPaginatorNavigationObjects.length - 1].after);
-      return;
-    }
-
+    // "Previous" pressed on paginator when on the first client page for the current server page
     if (event.pageIndex === event.previousPageIndex) {
 
       // Dont do anything if already on first page
@@ -142,27 +148,30 @@ export class RedditTableComponent implements OnInit {
         return;
       }
 
-      const last = this._arrayOfPaginatorNavigationObjects.pop();
-      this.getFeed(last.before);
-      this._dataSource.paginator.pageIndex = 3;
+      // Remove the last state and go to previous server side page
+      this.getFeed(this._arrayOfPaginatorNavigationObjects.pop().before);
 
+      // Show last client side page without needing to fetch another server side page
+      this._dataSource.paginator.pageIndex = Number.MAX_SAFE_INTEGER;
+
+      // About to go out of paginator bounds, 
     } else if (event.pageIndex * this._dataSource.paginator.pageSize >= this._dataSource.paginator.length) {
 
-      let before = null;
+      const before = this._arrayOfPaginatorNavigationObjects.length > 0
+        ?
+        this._arrayOfPaginatorNavigationObjects[this._arrayOfPaginatorNavigationObjects.length - 1].after
+        :
+        null;
 
-      if (this._arrayOfPaginatorNavigationObjects.length > 0) {
-        before = this._arrayOfPaginatorNavigationObjects[this._arrayOfPaginatorNavigationObjects.length - 1].after;
-      }
-
-
+      // Save State
       this._arrayOfPaginatorNavigationObjects.push({
         before,
         after: this._next
       });
 
+      // Go forward 1 server side page
       this.getFeed(this._arrayOfPaginatorNavigationObjects[this._arrayOfPaginatorNavigationObjects.length - 1].after);
       this._dataSource.paginator.pageIndex = 0;
-
     }
   }
 
@@ -170,13 +179,13 @@ export class RedditTableComponent implements OnInit {
    * Populates the mat table with data from reddit
    * @param next Offsett
    */
-  getFeed(next?: string): void {
+  getFeed(after?: string): void {
 
-    let q: string;
-    next ?
-      q = `${environment.SUBREDDIT_BASE_URL}${this._globals.currentSubreddit}.json?limit=${this._dataSource.paginator.length}&after=${next}`
+    const q = after
+      ?
+      `${environment.SUBREDDIT_BASE_URL}${this._globals.currentSubreddit}.json?limit=${this._dataSource.paginator.length}&after=${after}`
       :
-      q = `${environment.SUBREDDIT_BASE_URL}${this._globals.currentSubreddit}.json?limit=${this._dataSource.paginator.length}`;
+      `${environment.SUBREDDIT_BASE_URL}${this._globals.currentSubreddit}.json?limit=${this._dataSource.paginator.length}`;
 
     this._httpService.getRequest(q)
       .pipe(
@@ -282,4 +291,14 @@ interface TableRow {
 interface PaginatorNavigationObject {
   before: string;
   after: string;
+}
+
+/**
+ * Event received from the paginator when its detecting changes
+ */
+interface PaginatorEvent {
+  previousPageIndex: number,
+  pageIndex: number,
+  pageSize: number,
+  length: number
 }
