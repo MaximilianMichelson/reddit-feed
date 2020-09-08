@@ -19,7 +19,7 @@ import { ReadCommentsService } from './services/read-comments.service';
 export class RedditTableComponent implements OnInit {
 
   // Paginator settings
-  @ViewChild(MatPaginator) public paginator: MatPaginator;
+  @ViewChild(MatPaginator, { static: true }) public paginator: MatPaginator;
   public pageSize: number;
   public pageSizeOptions: number[];
   public length: number;
