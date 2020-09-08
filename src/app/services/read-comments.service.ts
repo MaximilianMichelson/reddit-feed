@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { environment } from '../../environments/environment';
-import { HttpService } from '../http-service/http-service';
+import { HttpService } from '../http-service/http.service';
 import { RedditComment } from '../models/reddit.model';
 import { ReadCommentsDialogComponent } from '../read-comments-dialog/read-comments-dialog.component';
 import { GlobalService } from './global.service';
@@ -13,7 +13,7 @@ import { GlobalService } from './global.service';
 export class ReadCommentsService {
 
   public constructor(
-    private readonly _httpService: HttpService,
+    private readonly _http: HttpService,
     private readonly _dialog: MatDialog,
     private readonly _global: GlobalService,
     private readonly _snackBar: MatSnackBar
@@ -24,7 +24,7 @@ export class ReadCommentsService {
    * @param id The id of the post to get comments from.
    */
   public readComments(id: string): void {
-    this._httpService.getRequest(`${environment.SUBREDDIT_BASE_URL}${this._global.currentSubreddit}/comments/${id}.json`)
+    this._http.getRequest(`${environment.SUBREDDIT_BASE_URL}${this._global.currentSubreddit}/comments/${id}.json`)
       .subscribe((comments: RedditComment[]) => {
 
         // Comments[0] is the post; Comments[1] is the real comments.

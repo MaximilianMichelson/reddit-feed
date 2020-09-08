@@ -6,7 +6,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableDataSource } from '@angular/material/table';
 import { map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
-import { HttpService } from './http-service/http-service';
+import { HttpService } from './http-service/http.service';
 import { PaginatorEvent, PaginatorNavigationObject, TableRow } from './models/data-table.model';
 import { RedditListing, RedditPost } from './models/reddit.model';
 import { SelectedRowDialogComponent } from './selected-row-dialog/selected-row-dialog.component';
@@ -43,7 +43,7 @@ export class RedditTableComponent implements OnInit {
   private _subredditFormGroup: FormGroup;
 
   public constructor(
-    private readonly _httpService: HttpService,
+    private readonly _http: HttpService,
     private readonly _dialog: MatDialog,
     private readonly _readCommentsService: ReadCommentsService,
     private readonly _globals: GlobalService,
@@ -189,7 +189,7 @@ export class RedditTableComponent implements OnInit {
       `${environment.SUBREDDIT_BASE_URL}${this._globals.currentSubreddit}.json?limit=${this._dataSource.paginator.length}&after=${after}` :
       `${environment.SUBREDDIT_BASE_URL}${this._globals.currentSubreddit}.json?limit=${this._dataSource.paginator.length}`;
 
-    this._httpService.getRequest(q)
+    this._http.getRequest(q)
       .pipe(
         map(
           (listing: RedditListing): RedditPost[] => {

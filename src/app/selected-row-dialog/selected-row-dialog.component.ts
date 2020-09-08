@@ -1,6 +1,6 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { HttpService } from '../http-service/http-service';
+import { HttpService } from '../http-service/http.service';
 import { ReadCommentsService } from '../services/read-comments.service';
 
 @Component({
@@ -26,7 +26,7 @@ export class SelectedRowDialogComponent implements OnInit {
             videoUrl?: string
         },
         private readonly _readCommentsService: ReadCommentsService,
-        private readonly _httpService: HttpService
+        private readonly _http: HttpService
     ) { }
 
     public async ngOnInit(): Promise<void> {
@@ -85,7 +85,7 @@ export class SelectedRowDialogComponent implements OnInit {
     public async setVideoUrl(): Promise<void> {
 
         // The rejected request reveales the unshortened video path
-        const result = await this._httpService.getRequestCORS(this._data.url)
+        const result = await this._http.getRequestCORS(this._data.url)
             .toPromise()
             .then(
                 _onfulfilled => void 0,
@@ -97,7 +97,7 @@ export class SelectedRowDialogComponent implements OnInit {
 
         // Get the unshortened video url if it exists
         if (ogUrl) {
-            this._data.videoUrl = await this._httpService.getRequest(`${ogUrl.getAttribute('content')}.json`)
+            this._data.videoUrl = await this._http.getRequest(`${ogUrl.getAttribute('content')}.json`)
                 .toPromise()
                 .then((data: any) => data[0].data.children[0].data.secure_media.reddit_video.fallback_url)
                 .catch(() => void 0);
