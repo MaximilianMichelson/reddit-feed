@@ -78,7 +78,6 @@ export class ReadCommentsDialogComponent implements OnInit {
         return this._globals.timeAgo(unixTimestamp);
     }
 
-
     private findReplies(depth: string, comment: RedditCommentReply): void {
         if (!this.hasReplies(comment)) {
             this.printReply(depth, comment);

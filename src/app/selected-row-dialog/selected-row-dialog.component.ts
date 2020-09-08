@@ -28,6 +28,7 @@ export class SelectedRowDialogComponent implements OnInit {
         private readonly _readCommentsService: ReadCommentsService,
         private readonly _httpService: HttpService
     ) { }
+
     public async ngOnInit(): Promise<void> {
         this.doneLoading = false;
         await this.setVideoUrl();
@@ -83,12 +84,11 @@ export class SelectedRowDialogComponent implements OnInit {
 
     public async setVideoUrl(): Promise<void> {
 
-        // Follow redirect and handle cors
         // The rejected request reveales the unshortened video path
-        const result = await this._httpService.getRequest(`https://cors-anywhere.herokuapp.com/${this._data.url}`)
+        const result = await this._httpService.getRequestCORS(this._data.url)
             .toPromise()
             .then(
-                _onfulfilled => null,
+                _onfulfilled => void 0,
                 onrejected => onrejected.error.text
             );
 
@@ -97,11 +97,9 @@ export class SelectedRowDialogComponent implements OnInit {
 
         // Get the unshortened video url if it exists
         if (ogUrl) {
-            await this._httpService.getRequest(`${ogUrl.getAttribute('content')}.json`)
+            this._data.videoUrl = await this._httpService.getRequest(`${ogUrl.getAttribute('content')}.json`)
                 .toPromise()
-                .then((data: any) => {
-                    this._data.videoUrl = data[0].data.children[0].data.secure_media.reddit_video.fallback_url;
-                })
+                .then((data: any) => data[0].data.children[0].data.secure_media.reddit_video.fallback_url)
                 .catch(() => void 0);
         }
         this.doneLoading = true;

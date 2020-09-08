@@ -12,4 +12,12 @@ export class HttpService {
   public getRequest(url: string): Observable<unknown> {
     return this._http.get(url);
   }
+
+  /**
+   * Follow redirect and handle cors
+   * @param url To url to visit
+   */
+  public getRequestCORS(url: string): Observable<unknown> {
+    return this._http.get(`https://cors-anywhere.herokuapp.com/${url}`);
+  }
 }
