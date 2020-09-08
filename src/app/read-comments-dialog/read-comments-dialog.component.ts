@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { RedditComment, RedditCommentReply } from '../models/reddit.model';
 import { GlobalService } from '../services/global.service';
@@ -6,7 +6,8 @@ import { GlobalService } from '../services/global.service';
 @Component({
     selector: 'app-read-comments-dialog-component',
     templateUrl: './read-comments-dialog.component.html',
-    styleUrls: ['./read-comments-dialog.component.css']
+    styleUrls: ['./read-comments-dialog.component.css'],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ReadCommentsDialogComponent implements OnInit {
 

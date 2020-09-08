@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { HttpService } from '../http-service/http.service';
 import { ReadCommentsService } from '../services/read-comments.service';
@@ -6,7 +6,8 @@ import { ReadCommentsService } from '../services/read-comments.service';
 @Component({
     selector: 'app-selected-row-dialog-component',
     templateUrl: './selected-row-dialog.component.html',
-    styleUrls: ['./selected-row-dialog.component.css']
+    styleUrls: ['./selected-row-dialog.component.css'],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SelectedRowDialogComponent implements OnInit {
 
@@ -70,7 +71,7 @@ export class SelectedRowDialogComponent implements OnInit {
         return this._data.created;
     }
 
-    public get videoUrl(): string {
+    public get videoUrl(): string | undefined {
         return this._data.videoUrl;
     }
 
