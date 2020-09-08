@@ -1,7 +1,7 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material';
-import { ReadCommentsService } from '../services/read-comments.service';
 import { HttpService } from '../http-service/http-service';
+import { ReadCommentsService } from '../services/read-comments.service';
 
 @Component({
     selector: 'app-selected-row-dialog-component',
@@ -10,9 +10,9 @@ import { HttpService } from '../http-service/http-service';
 })
 export class SelectedRowDialogComponent implements OnInit {
 
-    doneLoading: boolean;
+    public doneLoading: boolean;
 
-    constructor(
+    public constructor(
         @Inject(MAT_DIALOG_DATA) private readonly _data: {
             created: Date;
             comments: number;
@@ -28,76 +28,80 @@ export class SelectedRowDialogComponent implements OnInit {
         private readonly _readCommentsService: ReadCommentsService,
         private readonly _httpService: HttpService
     ) { }
-    async ngOnInit(): Promise<void> {
+
+    public async ngOnInit(): Promise<void> {
         this.doneLoading = false;
         await this.setVideoUrl();
     }
 
-    get id(): string {
+    public get id(): string {
         return this._data.id;
     }
 
-    get url(): string {
+    public get url(): string {
         return this._data.url;
     }
 
-    get permalink(): string {
+    public get permalink(): string {
         return this._data.permalink;
     }
 
-    get score(): number {
+    public get score(): number {
         return this._data.score;
     }
 
-    get title(): string {
+    public get title(): string {
         return this._data.title;
     }
 
-    get selftext(): string {
+    public get selftext(): string {
         return this._data.selftext;
     }
 
-    get author(): string {
+    public get author(): string {
         return this._data.author;
     }
 
-    get numOfComments(): number {
+    public get numOfComments(): number {
         return this._data.comments;
     }
 
-    get created(): Date {
+    public get created(): Date {
         return this._data.created;
     }
 
-    get videoUrl(): string {
+    public get videoUrl(): string {
         return this._data.videoUrl;
     }
 
-    onReadComments(id: string): void {
+    public onReadComments(id: string): void {
         this._readCommentsService.readComments(id);
     }
 
-    imageNotFound(event: { target: { src: string; }; }): void {
+    public imageNotFound(event: { target: { src: string; }; }): void {
         event.target.src = '../../assets/not_found.jpg';
     }
 
-    async setVideoUrl(): Promise<void> {
-        const result = await this._httpService.getRequest(`https://cors-anywhere.herokuapp.com/${this._data.url}`)
+    public async setVideoUrl(): Promise<void> {
+
+        // The rejected request reveales the unshortened video path
+        const result = await this._httpService.getRequestCORS(this._data.url)
             .toPromise()
             .then(
-                null,
+                _onfulfilled => void 0,
                 onrejected => onrejected.error.text
             );
 
         const htmlDoc = new DOMParser().parseFromString(result, 'text/html');
         const ogUrl = htmlDoc.querySelector(`meta[property='og:url']`);
 
-        ogUrl ? await this._httpService.getRequest(`${ogUrl.getAttribute('content')}.json`)
-            .toPromise()
-            .then((data: any) => {
-                this._data.videoUrl = data[0].data.children[0].data.secure_media.reddit_video.fallback_url;
-            })
-            .catch(() => void 0) : Error();
+        // Get the unshortened video url if it exists
+        if (ogUrl) {
+            this._data.videoUrl = await this._httpService.getRequest(`${ogUrl.getAttribute('content')}.json`)
+                .toPromise()
+                .then((data: any) => data[0].data.children[0].data.secure_media.reddit_video.fallback_url)
+                .catch(() => void 0);
+        }
         this.doneLoading = true;
     }
 }

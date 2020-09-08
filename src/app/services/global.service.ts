@@ -5,17 +5,18 @@ import { Injectable } from '@angular/core';
 })
 export class GlobalService {
   private _currentSubreddit: string;
-  constructor() { }
 
-  get currentSubreddit(): string {
+  public constructor() { }
+
+  public get currentSubreddit(): string {
     return this._currentSubreddit;
   }
 
-  set currentSubreddit(newSubreddit: string) {
+  public set currentSubreddit(newSubreddit: string) {
     this._currentSubreddit = newSubreddit;
   }
 
-  timeAgo(unixTimestamp: number): string {
+  public timeAgo(unixTimestamp: number): string {
 
     const seconds = Math.floor((new Date().getTime() - unixTimestamp) / 1000);
 

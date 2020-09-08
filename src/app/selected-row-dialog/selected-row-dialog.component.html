@@ -13,24 +13,34 @@
         <p> Number of Comments: {{numOfComments}}</p>
         <p> Author: {{author}}</p>
         <p> Score: {{score}}</p>
-        <p> Permalink: {{permalink}}</p>
+        <a [href]="permalink">{{permalink}}></a>
     </div>
 
     <div>
         <ng-container *ngIf="url; then hasUrl; else noUrl"></ng-container>
-        <ng-template #hasUrl>
-            <div *ngIf="videoUrl" class="video">
-                <video controls>
-                    <source [src]="videoUrl" />
-                    <track label="English" kind="captions" srclang="en" src="resources/myvideo-en.vtt" default>
-                    Browser not supported
-                </video>
-            </div>
 
-            <a [href]="url"><img class="img" [src]="url" alt="image" (error)="imageNotFound($event)" /></a>
+        <ng-template #hasUrl>
+
+            <ng-container *ngIf="videoUrl; then hasVideoUrl; else noVideoUrl"></ng-container>
+
+            <ng-template #hasVideoUrl>
+                <div *ngIf="videoUrl" class="video">
+                    <video controls>
+                        <source [src]="videoUrl" />
+                        <track label="English" kind="captions" srclang="en" src="resources/myvideo-en.vtt" default>
+                        Browser not supported
+                    </video>
+                </div>
+            </ng-template>
+
+            <ng-template #noVideoUrl>
+                <a [href]="url"><img class="img" [src]="url" alt="image" (error)="imageNotFound($event)" /></a>
+            </ng-template>
+
         </ng-template>
+
         <ng-template #noUrl>
-            This post has no image
+            This post has no image or video
         </ng-template>
     </div>
 

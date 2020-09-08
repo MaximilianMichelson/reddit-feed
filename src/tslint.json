@@ -16,6 +16,22 @@
     "variable-name": [
       true,
       "allow-leading-underscore"
-    ]
+    ],
+    "member-access": [
+      true,
+      "check-accessor",
+      "check-parameter-property",
+      "check-constructor"
+    ],
+    "member-ordering": [
+      true,
+      {
+        "order": "fields-first"
+      }
+    ],
+    "no-misused-new": true,
+    "no-return-await": true,
+    "prefer-readonly": true,
+    "ordered-imports": true
   }
 }
