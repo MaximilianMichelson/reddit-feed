@@ -9,6 +9,7 @@ import { RedditListing, RedditPost } from './models/reddit.model';
 import { SelectedRowDialogComponent } from './selected-row-dialog/selected-row-dialog.component';
 import { GlobalService } from './services/global.service';
 import { ReadCommentsService } from './services/read-comments.service';
+import { PaginatorNavigationObject, TableRow, PaginatorEvent } from './models/data-table.model';
 
 @Component({
   selector: 'app-root',
