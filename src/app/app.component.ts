@@ -1,12 +1,13 @@
 import { ChangeDetectionStrategy, Component, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableDataSource } from '@angular/material/table';
-import { MatDialog } from '@angular/material/dialog';
 import { map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { HttpService } from './http-service/http-service';
+import { PaginatorEvent, PaginatorNavigationObject, TableRow } from './models/data-table.model';
 import { RedditListing, RedditPost } from './models/reddit.model';
 import { SelectedRowDialogComponent } from './selected-row-dialog/selected-row-dialog.component';
 import { GlobalService } from './services/global.service';
