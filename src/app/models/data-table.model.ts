@@ -1,7 +1,7 @@
 /**
  * A mat-table row containing data from reddit
  */
-interface TableRow {
+export interface TableRow {
     selftext: string;
     created: Date;
     num_comments: number;
@@ -16,7 +16,7 @@ interface TableRow {
 /**
  * Objects containing a paginator navigation state
  */
-interface PaginatorNavigationObject {
+export interface PaginatorNavigationObject {
     before: string;
     after: string;
 }
@@ -24,7 +24,7 @@ interface PaginatorNavigationObject {
 /**
  * Event received from the paginator when its detecting changes
  */
-interface PaginatorEvent {
+export interface PaginatorEvent {
     previousPageIndex: number;
     pageIndex: number;
     pageSize: number;
