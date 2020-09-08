@@ -1,3 +1,4 @@
 export const environment = {
-  production: true
+  production: true,
+  SUBREDDIT_BASE_URL: 'https://www.reddit.com/r/'
 };

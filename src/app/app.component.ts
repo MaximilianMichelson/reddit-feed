@@ -22,6 +22,7 @@ export class RedditTableComponent implements OnInit {
   @ViewChild(MatPaginator) public paginator: MatPaginator;
   public pageSize: number;
   public pageSizeOptions: number[];
+  public length: number;
 
   // The next pagination page (the value "after" recieved from the reddit API)
   private _next: string;
@@ -50,6 +51,7 @@ export class RedditTableComponent implements OnInit {
 
     this.pageSize = 10;
     this.pageSizeOptions = [5, 10, 25];
+    this.length = 25;
 
     this._arrayOfPaginatorNavigationObjects = [];
 
@@ -66,7 +68,7 @@ export class RedditTableComponent implements OnInit {
     this._dataSource.paginator._intl.itemsPerPageLabel = 'Page Size';
     this._dataSource.paginator._intl.nextPageLabel = 'Next';
     this._dataSource.paginator._intl.previousPageLabel = 'Previous';
-    this._dataSource.paginator.length = 25;
+    this._dataSource.paginator.length = this.length;
 
     // Override default "next" and "previous" to allow for server side pagination to be implemented
     this._dataSource.paginator.hasNextPage = () => true;
