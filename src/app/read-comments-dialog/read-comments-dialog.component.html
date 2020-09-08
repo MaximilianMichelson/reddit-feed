@@ -6,13 +6,13 @@
             </ng-container>
 
             <ng-template #simplecomment let-comment='comment'>
-                <p>{{comment.author}} : Score: {{comment.score}} : {{timeAgo(comment.created)}} <br> {{comment.text}}
+                <p>{{comment.author | authorName}} : Score: {{comment.score}} : {{timeAgo(comment.created)}} <br> {{comment.text}}
                 </p>
             </ng-template>
 
             <ng-template #complexcomment let-comment='comment'>
                 <p [style.padding-left]="getPaddingLeft(amountOfDashes(comment.author))">
-                    {{comment.author}} : Score: {{comment.score}} : {{timeAgo(comment.created)}} <br> {{comment.text}}
+                    {{comment.author | authorName}} : Score: {{comment.score}} : {{timeAgo(comment.created)}} <br> {{comment.text}}
                 </p>
             </ng-template>
         </mat-list-item>
