@@ -1,5 +1,5 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { MAT_DIALOG_DATA } from '@angular/material';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { HttpService } from '../http-service/http-service';
 import { ReadCommentsService } from '../services/read-comments.service';
 

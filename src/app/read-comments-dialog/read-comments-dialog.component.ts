@@ -1,5 +1,5 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { MAT_DIALOG_DATA } from '@angular/material';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { RedditComment, RedditCommentReply } from '../models/reddit.model';
 import { GlobalService } from '../services/global.service';
 
