@@ -1,13 +1,14 @@
-import { Component, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
-import { MatTableDataSource, MatPaginator, MatSnackBar } from '@angular/material';
-import { HttpService } from './http-service/http-service';
-import { map } from 'rxjs/operators';
+import { ChangeDetectionStrategy, Component, OnInit, ViewChild } from '@angular/core';
+import { FormControl, FormGroup } from '@angular/forms';
+import { MatPaginator, MatSnackBar, MatTableDataSource } from '@angular/material';
 import { MatDialog } from '@angular/material/dialog';
-import { SelectedRowDialogComponent } from './selected-row-dialog/selected-row-dialog.component';
-import { FormGroup, FormControl } from '@angular/forms';
-import { ReadCommentsService } from './services/read-comments.service';
-import { GlobalService } from './services/global.service';
+import { map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
+import { HttpService } from './http-service/http-service';
+import { RedditListing, RedditPost } from './models/reddit.model';
+import { SelectedRowDialogComponent } from './selected-row-dialog/selected-row-dialog.component';
+import { GlobalService } from './services/global.service';
+import { ReadCommentsService } from './services/read-comments.service';
 
 @Component({
   selector: 'app-root',
@@ -17,28 +18,27 @@ import { environment } from 'src/environments/environment';
 })
 export class RedditTableComponent implements OnInit {
 
-  // The next pagination page (the value "after" recieved from the reddit API)
-  private _next: string;
-
-  // Paginator default and available page sizes
+  // Paginator settings
+  @ViewChild(MatPaginator) public paginator: MatPaginator;
   public pageSize: number;
   public pageSizeOptions: number[];
 
+  // The next pagination page (the value "after" recieved from the reddit API)
+  private _next: string;
+
   // State keeper for paginaton
   private _arrayOfPaginatorNavigationObjects: PaginatorNavigationObject[];
-
-  @ViewChild(MatPaginator) paginator: MatPaginator;
 
   // Columns to render in the mat-table
   private _displayedColumns: string[];
 
   // Cell data for the mat-table
-  private _dataSource: MatTableDataSource<RedditItem>;
+  private _dataSource: MatTableDataSource<RedditPost>;
 
   // Form for subreddit to get posts from
   private _subredditFormGroup: FormGroup;
 
-  constructor(
+  public constructor(
     private readonly _httpService: HttpService,
     private readonly _dialog: MatDialog,
     private readonly _readCommentsService: ReadCommentsService,
@@ -46,7 +46,7 @@ export class RedditTableComponent implements OnInit {
     private readonly _snackBar: MatSnackBar
   ) { }
 
-  ngOnInit(): void {
+  public ngOnInit(): void {
 
     this.pageSize = 10;
     this.pageSizeOptions = [5, 10, 25];
@@ -68,21 +68,25 @@ export class RedditTableComponent implements OnInit {
     this._dataSource.paginator._intl.previousPageLabel = 'Previous';
     this._dataSource.paginator.length = 25;
 
+    // Override default "next" and "previous" to allow for server side pagination to be implemented
     this._dataSource.paginator.hasNextPage = () => true;
     this._dataSource.paginator.hasPreviousPage = () => this.hasPrev();
 
     this.getFeed();
   }
 
-  hasPrev(): boolean {
+  /**
+   * Disables "previous" button in mat-paginator when false
+   */
+  public hasPrev(): boolean {
     return this._arrayOfPaginatorNavigationObjects.length > 0 || this._dataSource.paginator.pageIndex > 0 && this._arrayOfPaginatorNavigationObjects.length === 0;
   }
 
   /**
    * When clicking on a row in the mat-table
-   * @param row 
+   * @param row The clicked row
    */
-  onRowSelected(row: TableRow): void {
+  public onRowSelected(row: TableRow): void {
     this._dialog.open(SelectedRowDialogComponent, {
       data: {
         created: row.created,
@@ -103,7 +107,7 @@ export class RedditTableComponent implements OnInit {
    * Opens a new dialog with the comments
    * @param id The id of the post to get comments from
    */
-  onReadComments(id: string): void {
+  public onReadComments(id: string): void {
     this._readCommentsService.readComments(id);
   }
 
@@ -111,7 +115,7 @@ export class RedditTableComponent implements OnInit {
    * When the "change subreddit" button is pressed
    * @param newSubreddit Subreddit to get data from
    */
-  onSubredditChange(newSubreddit: string): void {
+  public onSubredditChange(newSubreddit: string): void {
 
     // Subreddits are in lowercase, transform input before getting the feed
     this._globals.currentSubreddit = newSubreddit.toLowerCase();
@@ -120,9 +124,9 @@ export class RedditTableComponent implements OnInit {
 
   /**
    * Triggered when doing actions on mat-paginator
-   * @param event 
+   * @param event Event when paginator detects changes
    */
-  paginatorPageChange(event: PaginatorEvent) {
+  public paginatorPageChange(event: PaginatorEvent) {
 
     // Page size changed
     if (event.pageSize !== this.pageSize) {
@@ -131,12 +135,9 @@ export class RedditTableComponent implements OnInit {
       this.pageSize = event.pageSize;
 
       // Reload the current server side page
-      this._arrayOfPaginatorNavigationObjects.length > 0
-        ?
-        this.getFeed(this._arrayOfPaginatorNavigationObjects[this._arrayOfPaginatorNavigationObjects.length - 1].after)
-        :
+      this._arrayOfPaginatorNavigationObjects.length > 0 ?
+        this.getFeed(this._arrayOfPaginatorNavigationObjects[this._arrayOfPaginatorNavigationObjects.length - 1].after) :
         this.getFeed();
-
       return;
     }
 
@@ -154,13 +155,11 @@ export class RedditTableComponent implements OnInit {
       // Show last client side page without needing to fetch another server side page
       this._dataSource.paginator.pageIndex = Number.MAX_SAFE_INTEGER;
 
-      // About to go out of paginator bounds, 
+      // About to go out of paginator bounds
     } else if (event.pageIndex * this._dataSource.paginator.pageSize >= this._dataSource.paginator.length) {
 
-      const before = this._arrayOfPaginatorNavigationObjects.length > 0
-        ?
-        this._arrayOfPaginatorNavigationObjects[this._arrayOfPaginatorNavigationObjects.length - 1].after
-        :
+      const before = this._arrayOfPaginatorNavigationObjects.length > 0 ?
+        this._arrayOfPaginatorNavigationObjects[this._arrayOfPaginatorNavigationObjects.length - 1].after :
         null;
 
       // Save State
@@ -179,18 +178,16 @@ export class RedditTableComponent implements OnInit {
    * Populates the mat table with data from reddit
    * @param next Offsett
    */
-  getFeed(after?: string): void {
+  public getFeed(after?: string): void {
 
-    const q = after
-      ?
-      `${environment.SUBREDDIT_BASE_URL}${this._globals.currentSubreddit}.json?limit=${this._dataSource.paginator.length}&after=${after}`
-      :
+    const q = after ?
+      `${environment.SUBREDDIT_BASE_URL}${this._globals.currentSubreddit}.json?limit=${this._dataSource.paginator.length}&after=${after}` :
       `${environment.SUBREDDIT_BASE_URL}${this._globals.currentSubreddit}.json?limit=${this._dataSource.paginator.length}`;
 
     this._httpService.getRequest(q)
       .pipe(
         map(
-          (listing: RedditListing): RedditItem[] => {
+          (listing: RedditListing): RedditPost[] => {
             listing.data.children.forEach(element => {
 
               // element.data.created is unix timestamp and needs to be converted
@@ -217,15 +214,15 @@ export class RedditTableComponent implements OnInit {
       );
   }
 
-  get subredditFormGroup(): FormGroup {
+  public get subredditFormGroup(): FormGroup {
     return this._subredditFormGroup;
   }
 
-  get dataSource(): MatTableDataSource<RedditItem> {
+  public get dataSource(): MatTableDataSource<RedditPost> {
     return this._dataSource;
   }
 
-  get displayedColumns(): string[] {
+  public get displayedColumns(): string[] {
     return this._displayedColumns;
   }
 
@@ -233,72 +230,16 @@ export class RedditTableComponent implements OnInit {
    * Returns a unix timestamp as a "time ago" string
    * @param unixTimestamp The timestamp to use
    */
-  timeAgo(unixTimestamp: number): string {
+  public timeAgo(unixTimestamp: number): string {
     return this._globals.timeAgo(unixTimestamp * 1000);
   }
 
   /**
    * Places placeholder image when the original image is not found
-   * @param event 
+   * @param event Containing the image src
    */
-  imageNotFound(event: { target: { src: string; }; }): void {
+  public imageNotFound(event: { target: { src: string; }; }): void {
     event.target.src = '../assets/not_found.jpg';
   }
 
-}
-
-/**
- * The Feed from reddit.com
- */
-interface RedditListing {
-  data: {
-    children: RedditItem[];
-    after: string;
-    before: string;
-    current: string;
-  };
-}
-
-/**
- * A Post on reddit
- */
-interface RedditItem {
-  data: {
-    created: string;
-    permalink: string;
-    stickied: boolean;
-  };
-}
-
-/**
- * A mat-table row containing data from reddit
- */
-interface TableRow {
-  selftext: string;
-  created: Date;
-  num_comments: number;
-  title: string;
-  author: string;
-  score: number;
-  permalink: string;
-  url: string;
-  id: string;
-}
-
-/**
- * Objects containing a paginator navigation state
- */
-interface PaginatorNavigationObject {
-  before: string;
-  after: string;
-}
-
-/**
- * Event received from the paginator when its detecting changes
- */
-interface PaginatorEvent {
-  previousPageIndex: number,
-  pageIndex: number,
-  pageSize: number,
-  length: number
 }

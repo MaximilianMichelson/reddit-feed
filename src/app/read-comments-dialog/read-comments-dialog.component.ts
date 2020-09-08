@@ -1,5 +1,6 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material';
+import { RedditComment, RedditCommentReply } from '../models/reddit.model';
 import { GlobalService } from '../services/global.service';
 
 @Component({
@@ -9,9 +10,9 @@ import { GlobalService } from '../services/global.service';
 })
 export class ReadCommentsDialogComponent implements OnInit {
 
-    private _commentsAndAllNestedComments: Comment[];
+    private _commentsAndAllNestedComments: RedditComment[];
 
-    constructor(
+    public constructor(
         @Inject(MAT_DIALOG_DATA) private readonly injectedData: {
             comments: { data: any };
             commentURL: string;
@@ -19,11 +20,14 @@ export class ReadCommentsDialogComponent implements OnInit {
         private readonly _globals: GlobalService
     ) { }
 
-    ngOnInit(): void {
+    public ngOnInit(): void {
 
-        const comments = (this.injectedData.comments.data) ? this.injectedData.comments.data : this.injectedData.comments;
+        const comments = this.injectedData.comments.data ?
+            this.injectedData.comments.data :
+            this.injectedData.comments;
+
         this._commentsAndAllNestedComments = [];
-        const noDuplicatesArray: Comment[] = [];
+        const noDuplicatesArray: RedditComment[] = [];
 
         // Get All Comments
         for (const comment of comments) {
@@ -31,7 +35,7 @@ export class ReadCommentsDialogComponent implements OnInit {
                 {
                     author: this.getAuthor('', comment),
                     text: this.printReply('', comment),
-                    score: this.getScore(comment),
+                    score: this.getReplyScore(comment),
                     created: comment.data.created_utc * 1000
                 }
             );
@@ -50,15 +54,39 @@ export class ReadCommentsDialogComponent implements OnInit {
         this._commentsAndAllNestedComments = noDuplicatesArray;
     }
 
+    /**
+     * Returns the number of times the text includes "-""
+     * @param text The text to check
+     */
+    public amountOfDashes(text: string): number {
+        return (text.match(/-/g) || []).length;
+    }
 
-    private findReplies(depth: string, comment: Reply): void {
+    /**
+     * Calculates padding left based on the matched symbols
+     * @param matches Number of matches
+     */
+    public getPaddingLeft(matches: number): string {
+        return `${matches * 25}px`;
+    }
+
+    /**
+     * Converts a unix timestamp to an "ago"
+     * @param unixTimestamp The timestamp to convert
+     */
+    public timeAgo(unixTimestamp: number): string {
+        return this._globals.timeAgo(unixTimestamp);
+    }
+
+
+    private findReplies(depth: string, comment: RedditCommentReply): void {
         if (!this.hasReplies(comment)) {
             this.printReply(depth, comment);
             this._commentsAndAllNestedComments.push(
                 {
                     author: this.getAuthor(depth, comment),
                     text: this.printReply('', comment),
-                    score: this.getScore(comment),
+                    score: this.getReplyScore(comment),
                     created: comment.data.created_utc * 1000
                 }
             );
@@ -69,7 +97,7 @@ export class ReadCommentsDialogComponent implements OnInit {
                     {
                         author: this.getAuthor(depth + '-', reply),
                         text: this.printReply('', reply),
-                        score: this.getScore(comment),
+                        score: this.getReplyScore(comment),
                         created: reply.data.created_utc * 1000
                     }
                 );
@@ -78,70 +106,27 @@ export class ReadCommentsDialogComponent implements OnInit {
         }
     }
 
-    private hasReplies(comment: Reply): boolean {
+    private hasReplies(comment: RedditCommentReply): boolean {
         return Boolean(comment.data.replies);
     }
 
-    private getReplies(comment: Reply): Reply[] {
+    private getReplies(comment: RedditCommentReply): RedditCommentReply[] {
         return comment.data.replies.data.children;
     }
 
-    private printReply(depth: string, reply: Reply): string {
+    private printReply(depth: string, reply: RedditCommentReply): string {
         return `${depth}${reply.data.body}`;
     }
 
-    private getAuthor(depth: string, reply: Reply): string {
+    private getAuthor(depth: string, reply: RedditCommentReply): string {
         return `${depth}${reply.data.author}`;
     }
 
-    private getScore(reply: Reply): number {
+    private getReplyScore(reply: RedditCommentReply): number {
         return reply.data.score;
     }
 
-    get comments(): Comment[] {
+    public get comments(): RedditComment[] {
         return this._commentsAndAllNestedComments;
     }
-
-    amountOfDashes(text: string): number {
-        return (text.match(/-/g) || []).length;
-    }
-
-    getPaddingLeft(matches: number): string {
-        return `${matches * 25}px`;
-    }
-
-    timeAgo(unixTimestamp: number): string {
-        return this._globals.timeAgo(unixTimestamp);
-    }
-}
-
-interface Comment {
-    author: string;
-    text: string;
-    score: number;
-    created: number;
-    data?: {
-        children: {
-            data: {
-                replies: {
-                    data: Reply[];
-                };
-            };
-        }[];
-    };
-}
-
-export interface Reply {
-    data: {
-        author: string,
-        body: string,
-        score: number,
-        created: string,
-        created_utc: number,
-        replies: {
-            data: {
-                children: Reply[]
-            };
-        };
-    };
 }
